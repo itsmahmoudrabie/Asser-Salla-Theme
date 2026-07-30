@@ -22,10 +22,21 @@
         {% endif %}
       </div>
 
-      {# Center: Quick Search Bar #}
-      <div class="header-search flex-1 max-w-md hidden md:block mx-4">
-        <salla-search data-testid="store-header-search" inline oval height="36"></salla-search>
-      </div>
+      {# Center: Quick Search Bar Trigger #}
+      {# <div class="header-search flex-1 max-w-md hidden md:block mx-4">
+        <button type="button" 
+                data-search-trigger
+                class="w-full flex items-center justify-between px-4 py-2 text-xs text-gray-300 bg-gray-900/80 hover:bg-gray-900 border border-gray-700/80 hover:border-primary/60 rounded-full transition-all duration-300 shadow-inner group cursor-pointer"
+                aria-label="{{ trans('blocks.header.search_placeholder')|default('ابحث عن منتج...') }}">
+          <span class="flex items-center gap-2 text-gray-300 group-hover:text-white transition-colors">
+            <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <span>{{ trans('blocks.header.search_placeholder')|default('ابحث عن منتج...') }}</span>
+          </span>
+          <span class="text-[10px] text-gray-400 bg-gray-800/90 px-2 py-0.5 rounded border border-gray-700 font-mono">Ctrl + K</span>
+        </button>
+      </div> #}
 
       {# Left side (RTL): Language, Currency, Dark Mode Toggle, Branch Scope #}
       <div class="flex items-center gap-2">
@@ -55,9 +66,20 @@
   </div>
 
   {# Mobile Search Container for small screens #}
-  <div class="md:hidden bg-darker/90 px-4 py-2 border-b border-gray-800">
-    <salla-search data-testid="store-header-search" inline oval height="34"></salla-search>
-  </div>
+  {# <div class="md:hidden bg-darker/90 px-4 py-2 border-b border-gray-800">
+    <button type="button" 
+            data-search-trigger
+            class="w-full flex items-center justify-between px-4 py-2 text-xs text-gray-300 bg-gray-900/90 border border-gray-700/80 rounded-full cursor-pointer active:scale-98 transition-transform"
+            aria-label="{{ trans('blocks.header.search_placeholder')|default('ابحث عن منتج...') }}">
+      <span class="flex items-center gap-2 text-gray-300">
+        <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <span>{{ trans('blocks.header.search_placeholder')|default('ابحث عن منتج...') }}</span>
+      </span>
+      <span class="text-[10px] text-primary font-medium">بحث</span>
+    </button>
+  </div> #}
 
   {# 2. Main Navigation Bar (Logo, Main Menu, Actions) #}
   <div id="mainnav" class="main-nav-container bg-white/95 dark:bg-darker/95 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300">
@@ -86,8 +108,20 @@
                     <custom-main-menu></custom-main-menu>
                   </div>
 
-                  {# Left Side: Cart & Account Actions #}
-                  <div class="flex items-center gap-3">
+                  {# Left Side: Search, Account & Cart Actions #}
+                  <div class="flex items-center gap-2 sm:gap-3">
+                      <button type="button" 
+                              data-search-trigger
+                              class="header-btn header-action-btn flex items-center justify-center cursor-pointer group"
+                              aria-label="{{ trans('blocks.header.search_placeholder')|default('البحث') }}"
+                              title="{{ trans('blocks.header.search_placeholder')|default('البحث') }}">
+                        <span class="header-btn__icon flex items-center justify-center">
+                          <svg class="w-5 h-5 text-gray-700 dark:text-gray-200 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                          </svg>
+                        </span>
+                      </button>
+
                       <div class="header-action-btn">
                         <salla-user-menu data-testid="store-header-user-menu" avatar-only show-header show-trigger></salla-user-menu>
                       </div>
@@ -104,4 +138,55 @@
       </div>
   </div>
 </header>
+
+{# Search Slider Drawer (Off-Canvas Side Drawer like Cart) #}
+<div id="search-slider-drawer" 
+     class="search-slider-drawer fixed inset-0 z-[100] pointer-events-none opacity-0 invisible transition-all duration-300"
+     role="dialog" 
+     aria-modal="true" 
+     aria-label="{{ trans('blocks.header.search_placeholder')|default('البحث عن منتجات') }}">
+  
+  {# Backdrop Overlay #}
+  <div class="search-slider-overlay fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300 opacity-0 cursor-pointer"
+       data-close-search-slider></div>
+
+  {# Slide-over Drawer Panel #}
+  <div class="search-slider-panel fixed top-0 bottom-0 ltr:right-0 rtl:left-0 w-full sm:w-[460px] bg-white dark:bg-darker shadow-2xl flex flex-col transition-transform duration-300 ease-out transform ltr:translate-x-full rtl:-translate-x-full z-10 border-l border-r border-gray-100 dark:border-gray-800">
+    
+    {# Drawer Header #}
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white leading-tight">{{ trans('blocks.header.search_placeholder')|default('البحث في المتجر') }}</h3>
+          <p class="text-[11px] text-gray-500 dark:text-gray-400">ابحث عن المنتجات والأقسام بسرعة</p>
+        </div>
+      </div>
+      
+      <button type="button" 
+              class="p-2 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-200/60 dark:hover:bg-gray-800 transition-colors cursor-pointer" 
+              data-close-search-slider
+              aria-label="إغلاق">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    {# Drawer Content Body #}
+    <div class="search-slider-body flex-1 overflow-y-auto p-6 space-y-4">
+      <salla-search data-testid="store-slider-search" inline oval height="46"></salla-search>
+    </div>
+
+    {# Drawer Footer #}
+    <div class="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 text-center text-xs text-gray-400">
+      <span>اضغط <kbd class="px-1.5 py-0.5 text-[10px] bg-gray-200 dark:bg-gray-800 rounded font-mono">ESC</kbd> للإغلاق</span>
+    </div>
+
+  </div>
+</div>
 
