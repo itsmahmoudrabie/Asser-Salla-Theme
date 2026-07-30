@@ -160,66 +160,6 @@
         },
         {
             "type": "static",
-            "format": "title",
-            "id": "static-label-premium-header",
-            "value": "<div class='rounded-lg' style='background-color: #21636d; display: flex; justify-content: center; align-items: center;padding: 15px;margin-bottom: 20px !important; flex-direction: column;gap: 15px;'><h6 style='color: #ffffff;font-size: 15px; font-weight: bold;'> الهيدر المميز (Premium)</h6></div>",
-            "variant": "h6"
-        },
-        {
-            "type": "boolean",
-            "icon": "sicon-toggle-off",
-            "label": "تفعيل الهيدر المميز",
-            "description": "هيدر بتصميم Luxury Minimal مستوحى من سيليا: شفاف فوق البانر، يصغر عند التمرير، ويختفي وقت النزول ليظهر وقت الصعود. عند التعطيل يعود الهيدر الكلاسيكي. مبدئيًا معطّل لحد ما يتم التأكد إنه بيتعرض صح على المتجر",
-            "id": "enable_premium_header",
-            "format": "switch",
-            "required": false,
-            "value": false,
-            "selected": false
-        },
-        {
-            "type": "boolean",
-            "icon": "sicon-toggle-off",
-            "label": "تفعيل شريط الإعلان العلوي",
-            "description": "شريط رفيع أعلى الهيدر لعرض رسالة شحن أو عرض خاص، قابل للإغلاق من الزائر ويتذكر اختياره",
-            "id": "enable_announcement_bar",
-            "format": "switch",
-            "required": false,
-            "value": true,
-            "selected": true
-        },
-        {
-            "type": "string",
-            "icon": "sicon-edit",
-            "label": "نص شريط الإعلان",
-            "description": "مثال: شحن مجاني لجميع الطلبات فوق ٢٠٠ ر.س",
-            "id": "announcement_text",
-            "format": "text",
-            "required": false,
-            "value": "شحن مجاني لجميع الطلبات — لفترة محدودة"
-        },
-        {
-            "type": "string",
-            "icon": "sicon-link",
-            "label": "رابط شريط الإعلان (اختياري)",
-            "description": "إذا تُرك فارغًا لن يكون الشريط قابلاً للنقر",
-            "id": "announcement_link",
-            "format": "text",
-            "required": false,
-            "value": ""
-        },
-        {
-            "type": "boolean",
-            "icon": "sicon-toggle-off",
-            "label": "إظهار أيقونة المفضلة في الهيدر",
-            "description": "أيقونة قلب مع عداد المنتجات المضافة للمفضلة، بجانب أيقونتي الحساب والسلة",
-            "id": "enable_wishlist_icon",
-            "format": "switch",
-            "required": false,
-            "value": true,
-            "selected": true
-        },
-        {
-            "type": "static",
             "id": "static-line3",
             "format": "line"
         },
