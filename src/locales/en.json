@@ -24,7 +24,12 @@
     "bank_offer_sub_title_multiple": "Pay for your purchases via one of the following bank cards and get the specified discount",
     "bank_offer_sub_title_single": "Pay for your purchases via :bank_name bank card and get discount",
     "titles": {
-      "toggle_dark_mode": "Toggle dark mode"
+      "toggle_dark_mode": "Toggle dark mode",
+      "skip_to_content": "Skip to content",
+      "dismiss_announcement": "Dismiss banner",
+      "search": "Search",
+      "wishlist": "Wishlist",
+      "close_menu": "Close menu"
     }
   }
 }
