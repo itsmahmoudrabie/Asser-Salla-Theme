@@ -56,6 +56,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% set use_premium_header = theme.settings.get('enable_premium_header', true) %}
     {% if theme.settings.get('enable_dark_mode_toggle', true) %}
     <script data-cfasync="false">
         (function () {
@@ -77,10 +78,28 @@
         })();
     </script>
     {% endif %}
+    {% if use_premium_header and theme.settings.get('enable_announcement_bar', true) %}
+    {# Pre-paint check so a previously-dismissed announcement never flashes on load (same technique as the dark-mode IIFE above). Re-appears automatically if the merchant edits the announcement text, since the dismissed value is compared against the current one. #}
+    <script data-cfasync="false">
+        (function () {
+            try {
+                var currentAnnouncement = {{ theme.settings.get('announcement_text', '')|json_encode|raw }};
+                var dismissedAnnouncement = localStorage.getItem('aser-announcement-dismissed');
+                if (currentAnnouncement && dismissedAnnouncement === currentAnnouncement) {
+                    document.documentElement.classList.add('announcement-dismissed');
+                }
+            } catch (e) {}
+        })();
+    </script>
+    {% endif %}
     {{ theme.settings.set('placeholder', 'images/placeholder.png') }}
 
     <script defer data-cfasync="false" crossorigin="anonymous" src="{{ 'product-card.js'|asset }}"></script>
-    <script defer src="{{ 'main-menu.js'|asset }}"></script>
+    {% if use_premium_header %}
+        <script defer src="{{ 'header-premium.js'|asset }}"></script>
+    {% else %}
+        <script defer src="{{ 'main-menu.js'|asset }}"></script>
+    {% endif %}
     {% if theme.settings.get('enable_add_product_toast', true) %}
         <script defer src="{{ 'add-product-toast.js'|asset }}"></script>
     {% endif %}
@@ -130,7 +149,11 @@
 </noscript>
 <div class="app-inner flex flex-col min-h-full">
     {% hook 'body:start' %}
-    {% component 'header.header' %}
+    {% if use_premium_header %}
+        {% component 'header.header-premium' %}
+    {% else %}
+        {% component 'header.header' %}
+    {% endif %}
     <main id="main-content" role="main"{{ (page.slug == 'product.single' or page.slug starts with 'product.index') ? ' class="flex flex-col space-y-8 sm:space-y-16"' : '' }}>
     {% block content %}{% endblock %}
     </main>
