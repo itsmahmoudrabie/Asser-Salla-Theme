@@ -17,12 +17,13 @@ module.exports = {
         },
         fontFamily: {
             sans: [
-                'var(--font-main)',
+                'var(--font-body)',
                 '-apple-system',
                 'BlinkMacSystemFont',
             ],
             primary: "var(--font-main)",
-            heading: "var(--font-heading)"
+            heading: "var(--font-heading)",
+            body: "var(--font-body)"
         },
         extend    : {
             transitionTimingFunction: {
