@@ -6,24 +6,29 @@ $main-text-color: var(--main-text-color);
 
 :root {
   --infinte-color: #c9c9c9;
-  --main-text-color: #231f1e;
+  --main-text-color: #2B2926; /* الفحمي */
   --main-text-color-dark: #2b2d34;
 
   /* current */
-  --color-primary: #5cd5c4;
-  --color-primary: #414042;
-  --color-primary-d: #272628;
-  --color-primary-l: #676668;
-  --color-primary-reverse: #ff6767;
-  --color-text: #7c8082;
+  --color-primary: #B08D57; /* الذهبي — بطل الهوية */
+  --color-primary-d: #8A6D42;
+  --color-primary-l: #C7A876;
+  --color-primary-reverse: #FFFFFF;
+  --color-text: #4A453F;
   --bg-gray: #c6c7ce1a;
   --color-grey: #f5f7f9;
   --color-light-grey: #eeeeee;
   /* font-size */
   --font-sm: 0.8685714286rem;
   /* font-family: ; */
-  --font-main: "DINNextLTArabic";
+  --font-main: "Amiri";
 
   /* plugins */
   --mm-ocd-width: calc(100% - 51px);
+
+  /* إضافات آسر المخصصة (مش من القالب الأصلي) */
+  --color-ivory: #F7F3EC;
+  --color-sand: #E9DFC9;
+  --color-navy: #1B2A4A;
+  --color-navy-dark: #12203A;
 }

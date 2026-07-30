@@ -269,6 +269,16 @@
             "required": false,
             "value": false,
             "selected": false
+        },
+        {
+            "type": "color",
+            "icon": "sicon-brush",
+            "label": "اللون الكحلي (Navy)",
+            "description": "لون Accent ثانٍ من هوية آسر — يُستخدم في البانرات والفوتر والشارات، بحد أقصى 15% من أي شاشة",
+            "id": "color_navy",
+            "format": "color",
+            "required": false,
+            "value": "#1B2A4A"
         }
     ],
     "components": [
