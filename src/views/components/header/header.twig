@@ -9,14 +9,14 @@
 <header data-testid="store-header" class="store-header relative z-30 font-primary">
 
   {# 1. Top Navbar (Bar for announcement, contacts, lang & dark mode) #}
-  <div class="top-navbar bg-slate-900 text-slate-200 border-b border-slate-800 transition-colors duration-300">
+  <div class="top-navbar bg-darker text-gray-200 border-b border-gray-800 transition-colors duration-300">
     <div class="container flex items-center justify-between gap-4 py-2 text-xs">
       
       {# Right side (RTL): Contacts & Links #}
       <div class="flex items-center gap-3">
-        <salla-contacts data-testid="store-header-contacts" is-header class="text-xs text-slate-300 font-medium"></salla-contacts>
+        <salla-contacts data-testid="store-header-contacts" is-header class="text-xs text-gray-300 font-medium"></salla-contacts>
         {% if important_links %}
-          <div class="hidden lg:flex items-center border-r border-slate-700/60 pr-3 rtl:border-r-0 rtl:border-l rtl:pr-0 rtl:pl-3">
+          <div class="hidden lg:flex items-center border-r border-gray-700/60 pr-3 rtl:border-r-0 rtl:border-l rtl:pr-0 rtl:pl-3">
             <salla-menu data-testid="store-header-topnav" source="footer" topnav></salla-menu>
           </div>
         {% endif %}
@@ -55,7 +55,7 @@
   </div>
 
   {# Mobile Search Container for small screens #}
-  <div class="md:hidden bg-slate-900/90 px-4 py-2 border-b border-slate-800">
+  <div class="md:hidden bg-darker/90 px-4 py-2 border-b border-gray-800">
     <salla-search data-testid="store-header-search" inline oval height="34"></salla-search>
   </div>
 
