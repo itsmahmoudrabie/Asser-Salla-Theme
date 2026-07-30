@@ -56,6 +56,27 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if theme.settings.get('enable_dark_mode_toggle', true) %}
+    <script data-cfasync="false">
+        (function () {
+            try {
+                var defaultMode = '{{ theme.settings.get('default_color_mode', 'auto') }}';
+                var stored = localStorage.getItem('aser-color-mode');
+                var isDark;
+                if (stored) {
+                    isDark = stored === 'dark';
+                } else if (defaultMode === 'dark') {
+                    isDark = true;
+                } else if (defaultMode === 'light') {
+                    isDark = false;
+                } else {
+                    isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                }
+                if (isDark) document.documentElement.classList.add('dark');
+            } catch (e) {}
+        })();
+    </script>
+    {% endif %}
     {{ theme.settings.set('placeholder', 'images/placeholder.png') }}
 
     <script defer data-cfasync="false" crossorigin="anonymous" src="{{ 'product-card.js'|asset }}"></script>

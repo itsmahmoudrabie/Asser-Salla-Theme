@@ -33,3 +33,14 @@ $main-text-color: var(--main-text-color);
   --color-navy: #1B2A4A;
   --color-navy-dark: #12203A;
 }
+
+/* الوضع الداكن — قلب اللوحة: الكحلي الغامق يحل محل العاجي كخلفية، والعاجي يبقى نص */
+html.dark {
+  --color-ivory: #12203A;
+  --main-text-color: #F7F3EC;
+  --color-sand: #1B2A4A;
+  --color-text: #C9C2B8;
+  --color-primary: #C7A876;
+  --color-primary-d: #B08D57;
+  --color-primary-l: #DCC49A;
+}

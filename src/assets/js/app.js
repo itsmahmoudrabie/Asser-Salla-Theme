@@ -21,6 +21,7 @@ class App extends AppHelpers {
     this.initiateDropdowns();
     this.initiateModals();
     this.initiateCollapse();
+    this.initiateDarkMode();
     
     // Ensure #more-menu-dropdown exists before running changeMenuDirection
     const menuDirInterval = setInterval(() => {
@@ -231,6 +232,15 @@ isElementLoaded(selector){
     if (!isOpen) {
       setTimeout(() => this.addClass(id, 'hidden'), 350);
     }
+  }
+
+  initiateDarkMode() {
+    this.onClick('[data-dark-mode-toggle]', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      try {
+        localStorage.setItem('aser-color-mode', isDark ? 'dark' : 'light');
+      } catch (e) {}
+    });
   }
 
   initiateCollapse() {

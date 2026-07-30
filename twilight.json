@@ -129,6 +129,36 @@
             "selected": true
         },
         {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "تفعيل زر الوضع الداكن",
+            "description": "يظهر للزائر زر لتبديل واجهة المتجر بين الوضع الفاتح والداكن",
+            "id": "enable_dark_mode_toggle",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "id": "default_color_mode",
+            "type": "items",
+            "format": "dropdown-list",
+            "label": "الوضع الافتراضي للألوان",
+            "description": "الوضع اللي يبدأ بيه الزائر قبل أي تفاعل مع زر التبديل",
+            "labelHTML": null,
+            "icon": "sicon-list",
+            "selected": [
+                {"label": "تلقائي (حسب جهاز الزائر)", "value": "auto", "key": "43f39342-2567-43ce-bdee-a70914088806"}
+            ],
+            "options": [
+                {"label": "تلقائي (حسب جهاز الزائر)", "value": "auto", "key": "43f39342-2567-43ce-bdee-a70914088806"},
+                {"label": "فاتح دائمًا", "value": "light", "key": "b5e8d4eb-6574-403e-91ce-d3c6c2950ff5"},
+                {"label": "داكن دائمًا", "value": "dark", "key": "9b0d96e5-53d8-4ef9-9192-b017355b0bca"}
+            ],
+            "source": "Manual",
+            "required": true
+        },
+        {
             "type": "static",
             "id": "static-line3",
             "format": "line"

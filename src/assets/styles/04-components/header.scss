@@ -280,6 +280,29 @@ salla-menu[topnav]:not(.hydrated) {
 
 .header-skel-item--menu { height: 14px; width: 80px; }
 
+// ── Dark mode toggle button ─────────────────────────────────────
+.dark-mode-toggle {
+  @apply inline-flex items-center justify-center;
+
+  &__icon {
+    @apply text-primary;
+  }
+
+  &__icon--sun {
+    display: none;
+  }
+}
+
+html.dark .dark-mode-toggle {
+  .dark-mode-toggle__icon--moon {
+    display: none;
+  }
+
+  .dark-mode-toggle__icon--sun {
+    display: block;
+  }
+}
+
 // ── Dark topnav variant — lift contrast on dark backgrounds ─────
 .topnav-is-dark {
   .top-navbar salla-menu[topnav]:not(.hydrated)::before,
