@@ -56,7 +56,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% set use_premium_header = theme.settings.get('enable_premium_header', true) %}
+    {# Defaults to false (safe/classic) until the premium header is confirmed rendering correctly on a live store — flip the twilight.json default to true once verified. #}
+    {% set use_premium_header = theme.settings.get('enable_premium_header', false) %}
     {% if theme.settings.get('enable_dark_mode_toggle', true) %}
     <script data-cfasync="false">
         (function () {
