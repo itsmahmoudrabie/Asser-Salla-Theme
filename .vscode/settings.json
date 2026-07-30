@@ -18,10 +18,8 @@
     "terminal.ansiRed": "#FB543F",
     "terminal.ansiWhite": "#A89984",
     "terminal.ansiYellow": "#FAC03B"
+  },
   "scss.lint.unknownAtRules": "ignore",
   "css.lint.unknownAtRules": "ignore",
-  "less.lint.unknownAtRules": "ignore",
-  "files.associations": {
-    "*.scss": "tailwindcss"
-  }
+  "less.lint.unknownAtRules": "ignore"
 }
