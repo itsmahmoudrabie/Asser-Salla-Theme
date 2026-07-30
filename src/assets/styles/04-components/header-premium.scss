@@ -1,0 +1,763 @@
+/* ==========================================================================
+   Premium header ("Celia"-inspired) — src/views/components/header/header-premium.twig
+   Everything here is scoped under .header-premium / .announcement-bar so it
+   can never bleed into the classic header (header.scss / .main-nav-container).
+   Colors are NOT redeclared — they read the theme's real tokens from
+   01-settings/global.scss (--color-primary, --color-ivory, --color-navy-dark,
+   --main-text-color, --font-heading, --font-body) so merchant branding
+   (Partners Portal color, dark mode) flows through automatically.
+   RTL uses logical properties throughout (inset-inline-*, margin-inline-*)
+   instead of left/right, matching this theme's is_rtl-first audience.
+   ========================================================================== */
+
+// ---------------------------------------------------------------------------
+// Component tokens
+// ---------------------------------------------------------------------------
+.header-premium,
+.announcement-bar {
+  --h-height: 65px;                 // mobile base height
+  --h-height-shrunk: 52px;          // mobile shrunk height
+  --h-z: 999;                       // deliberately below Salla's own drawers/modals
+  --h-duration: 0.3s;
+  --h-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --h-bg-solid: var(--color-ivory);
+  --h-text: var(--main-text-color);
+  --h-border: rgba(43, 41, 38, 0.08);
+  --h-shadow: 0 10px 30px -14px rgba(43, 41, 38, 0.25);
+  --h-accent: var(--color-primary);
+
+  @media (min-width: 768px) {
+    --h-height: 80px;
+    --h-height-shrunk: 60px;
+  }
+}
+
+// Note: --h-bg-solid (--color-ivory) and --h-text (--main-text-color) do NOT
+// need overriding here — global.scss already swaps their values for
+// html.dark (ivory becomes the dark-navy surface, main-text-color becomes
+// ivory), so this component inherits dark mode for free. Only the tokens
+// that don't already have a dark counterpart get one here.
+html.dark .header-premium,
+html.dark .announcement-bar {
+  --h-border: rgba(247, 243, 236, 0.08);
+  --h-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-premium,
+  .header-premium *,
+  .announcement-bar,
+  .announcement-bar * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Accessibility: skip link + shared focus ring
+// ---------------------------------------------------------------------------
+.skip-to-content {
+  position: fixed;
+  inset-inline-start: 12px;
+  inset-block-start: -60px;
+  z-index: 1100;
+  background: var(--color-primary);
+  color: var(--color-primary-reverse);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: inset-block-start 0.2s ease;
+
+  &:focus {
+    inset-block-start: 12px;
+  }
+}
+
+.header-premium__burger:focus-visible,
+.header-premium__icon-btn:focus-visible,
+.header-premium__nav-link:focus-visible,
+.header-premium__mobile-link:focus-visible,
+.header-premium__pill:focus-visible,
+.announcement-bar__close:focus-visible {
+  outline: 2px solid var(--h-accent);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+// ---------------------------------------------------------------------------
+// Scroll sentinel — invisible, used by IntersectionObserver only
+// ---------------------------------------------------------------------------
+.header-premium-sentinel {
+  display: block;
+  block-size: 1px;
+  margin-block-end: -1px;
+}
+
+// ---------------------------------------------------------------------------
+// Announcement bar
+// ---------------------------------------------------------------------------
+.announcement-bar {
+  overflow: hidden;
+  max-block-size: 44px;
+  background: var(--h-accent);
+  color: var(--color-primary-reverse);
+  font-size: 13px;
+  font-weight: 500;
+  transition: max-block-size 0.35s var(--h-ease), opacity 0.3s ease, block-size 0.35s var(--h-ease);
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    block-size: 44px;
+    gap: 8px;
+  }
+
+  &__spacer {
+    inline-size: 28px;
+    flex: 0 0 auto;
+
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+
+  &__text {
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // the clickable variant (rendered as <a> when announcement_link is set)
+  a.announcement-bar__text {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  &__close {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 28px;
+    block-size: 28px;
+    border-radius: 999px;
+    color: inherit;
+    opacity: 0.85;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      opacity: 1;
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+html.announcement-dismissed .announcement-bar,
+.announcement-bar.is-dismissed {
+  max-block-size: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+// ---------------------------------------------------------------------------
+// Header shell: sticky + shrink + hide/reveal + transparent-over-hero
+// ---------------------------------------------------------------------------
+.header-premium {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--h-z);
+  background-color: var(--h-bg-solid);
+  color: var(--h-text);
+  border-block-end: 1px solid var(--h-border);
+  box-shadow: none;
+  transform: translateY(0);
+  transition: background-color var(--h-duration) var(--h-ease),
+              border-color var(--h-duration) var(--h-ease),
+              box-shadow var(--h-duration) var(--h-ease),
+              transform var(--h-duration) var(--h-ease),
+              color var(--h-duration) var(--h-ease);
+  will-change: transform;
+}
+
+// Homepage only (see assumption #6 in header-premium.twig): starts transparent
+// over the hero slider, flips solid once the scroll sentinel leaves view.
+.header-premium--hero:not(.is-solid) {
+  background-color: transparent;
+  border-block-end-color: transparent;
+  color: #fff;
+
+  .header-premium__wordmark {
+    color: #fff;
+  }
+}
+
+.header-premium.is-solid {
+  box-shadow: var(--h-shadow);
+}
+
+// Hide on scroll down / reveal on scroll up — transform only, no top/position writes.
+.header-premium.is-hidden {
+  transform: translateY(-100%);
+}
+
+.header-premium__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(12px, 3vw, 32px);
+  block-size: var(--h-height);
+  transition: block-size var(--h-duration) var(--h-ease);
+}
+
+.header-premium.is-shrunk .header-premium__row {
+  block-size: var(--h-height-shrunk);
+}
+
+.header-premium__group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-inline-size: 0;
+
+  &--start {
+    flex: 1 1 0;
+  }
+
+  &--center {
+    flex: 2 1 auto;
+    justify-content: center;
+    min-inline-size: 0;
+  }
+
+  &--end {
+    flex: 1 1 0;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+}
+
+// <premium-main-menu> is a custom element with no shadow DOM; without this it
+// defaults to display:inline, which would add stray inline-box behavior
+// around the flex <ul>/skeleton it renders into itself.
+.header-premium__menu-root {
+  display: contents;
+}
+
+// ---------------------------------------------------------------------------
+// Logo
+// ---------------------------------------------------------------------------
+.header-premium__logo {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 0;
+}
+
+.header-premium__logo-img {
+  block-size: 44px;
+  inline-size: auto;
+  max-inline-size: 180px;
+  object-fit: contain;
+  transition: block-size var(--h-duration) var(--h-ease);
+}
+
+.header-premium.is-shrunk .header-premium__logo-img {
+  block-size: 34px;
+}
+
+@media (max-width: 767px) {
+  .header-premium__logo-img {
+    block-size: 34px;
+  }
+
+  .header-premium.is-shrunk .header-premium__logo-img {
+    block-size: 28px;
+  }
+}
+
+.header-premium__wordmark {
+  font-family: var(--font-heading);
+  font-size: clamp(20px, 2.4vw, 26px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--h-text);
+}
+
+// ---------------------------------------------------------------------------
+// Mobile burger → morphs into an X
+// ---------------------------------------------------------------------------
+.header-premium__burger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  inline-size: 40px;
+  block-size: 40px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--h-border);
+  }
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.header-premium__burger-bar {
+  inline-size: 20px;
+  block-size: 2px;
+  border-radius: 2px;
+  background-color: currentColor;
+  transition: transform var(--h-duration) var(--h-ease), opacity var(--h-duration) var(--h-ease);
+  transform-origin: center;
+}
+
+.header-premium__burger.is-open {
+  .header-premium__burger-bar:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .header-premium__burger-bar:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .header-premium__burger-bar:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Desktop nav — links, animated underline, mega menu
+// ---------------------------------------------------------------------------
+.header-premium__nav {
+  display: none;
+  align-items: center;
+  gap: clamp(16px, 2vw, 32px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  @media (min-width: 768px) {
+    display: flex;
+  }
+}
+
+.header-premium__nav-item {
+  position: relative;
+}
+
+.header-premium__nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-block: 8px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: inherit;
+  white-space: nowrap;
+
+  // animated underline, growing from center
+  &::after {
+    content: '';
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-end: 2px;
+    inline-size: 0;
+    block-size: 2px;
+    background-color: var(--h-accent);
+    transform: translateX(-50%);
+    transition: inline-size 0.3s ease;
+  }
+
+  &:hover::after,
+  .header-premium__nav-item.is-open > &::after {
+    inline-size: 100%;
+  }
+
+  &__caret {
+    inline-size: 10px;
+    block-size: 10px;
+    transition: transform 0.2s ease;
+  }
+}
+
+.header-premium__nav-item.is-open .header-premium__nav-link__caret {
+  transform: rotate(180deg);
+}
+
+// Mega / dropdown menu — fade + slide-down entrance, 150ms exit delay
+.header-premium__mega {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: calc(100% + 10px);
+  min-inline-size: 220px;
+  background-color: var(--h-bg-solid);
+  color: var(--main-text-color);
+  border-radius: 16px;
+  box-shadow: var(--h-shadow);
+  border: 1px solid var(--h-border);
+  padding: 14px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  z-index: 5;
+  transition: opacity 0.2s ease 0.15s, transform 0.2s ease 0.15s, visibility 0s linear 0.35s;
+}
+
+.header-premium__nav-item.has-mega .header-premium__mega {
+  display: block;
+}
+
+.header-premium__nav-item.mega-wide .header-premium__mega {
+  inset-inline-start: 50%;
+  inline-size: min(720px, 80vw);
+  transform: translateX(-50%) translateY(-10px);
+  display: flex;
+  gap: 24px;
+}
+
+.header-premium__nav-item.mega-wide:hover .header-premium__mega,
+.header-premium__nav-item.mega-wide.is-open .header-premium__mega {
+  transform: translateX(-50%) translateY(0);
+}
+
+.header-premium__nav-item:hover .header-premium__mega,
+.header-premium__nav-item:focus-within .header-premium__mega,
+.header-premium__nav-item.is-open .header-premium__mega {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0s;
+}
+
+.header-premium__mega-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-premium__mega-link {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: inherit;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    background-color: var(--h-border);
+    color: var(--h-accent);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Utility pills (branch / localization) + icon buttons row
+// ---------------------------------------------------------------------------
+.header-premium__utility-pills {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  margin-inline-end: 4px;
+  padding-inline-end: 10px;
+  border-inline-end: 1px solid var(--h-border);
+
+  @media (min-width: 1024px) {
+    display: inline-flex;
+  }
+}
+
+.header-premium__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+    color: var(--h-accent);
+  }
+}
+
+.header-premium__icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: 999px;
+  color: inherit;
+  font-size: 18px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    background-color: var(--h-border);
+    color: var(--h-accent);
+  }
+
+  &--account,
+  &--cart {
+    // let the slotted salla-* web component fill the hit area
+    padding: 0;
+  }
+}
+
+.header-premium__badge {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-end: 2px;
+  min-inline-size: 16px;
+  block-size: 16px;
+  padding-inline: 3px;
+  border-radius: 999px;
+  background-color: var(--h-accent);
+  color: var(--color-primary-reverse);
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--h-bg-solid);
+}
+
+// cart bounce/pulse when an item is added
+@keyframes header-premium-cart-bump {
+  0%   { transform: scale(1) rotate(0deg); }
+  30%  { transform: scale(1.22) rotate(-10deg); }
+  55%  { transform: scale(0.94) rotate(6deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+.header-premium__icon-btn--cart.is-bumped {
+  animation: header-premium-cart-bump 0.5s var(--h-ease);
+}
+
+// salla-user-menu / salla-cart-summary sizing inside the round icon buttons
+.header-premium__icon-btn salla-user-menu,
+.header-premium__icon-btn salla-cart-summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 40px;
+  block-size: 40px;
+}
+
+.header-premium__icon-btn .s-cart-summary-count {
+  inset-block-start: -2px;
+  inset-inline-end: -2px;
+}
+
+// Dark mode toggle — smooth cross-fade + rotation (overrides the base
+// display:none/block swap from 04-components/header.scss with an animatable
+// opacity/rotate cross-fade, scoped to the premium header only).
+.header-premium .dark-mode-toggle {
+  position: relative;
+
+  .dark-mode-toggle__icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    inline-size: 18px;
+    block-size: 18px;
+    transition: opacity var(--h-duration) var(--h-ease), transform var(--h-duration) var(--h-ease);
+  }
+
+  .dark-mode-toggle__icon--sun {
+    display: block !important;
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.6);
+  }
+
+  .dark-mode-toggle__icon--moon {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+html.dark .header-premium .dark-mode-toggle {
+  .dark-mode-toggle__icon--moon {
+    display: block !important;
+    opacity: 0;
+    transform: rotate(90deg) scale(0.6);
+  }
+
+  .dark-mode-toggle__icon--sun {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile full-screen overlay — slide-down entrance, staggered items
+// ---------------------------------------------------------------------------
+.header-premium__mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--h-z) + 10);
+  visibility: hidden;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+.header-premium__mobile-overlay.is-open {
+  visibility: visible;
+}
+
+.header-premium__mobile-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(20, 18, 15, 0.55);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.header-premium__mobile-overlay.is-open .header-premium__mobile-backdrop {
+  opacity: 1;
+}
+
+.header-premium__mobile-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--h-bg-solid);
+  color: var(--main-text-color);
+  transform: translateY(-100%);
+  transition: transform 0.4s var(--h-ease);
+  overflow-y: auto;
+  padding-block-start: env(safe-area-inset-top, 0px);
+}
+
+.header-premium__mobile-overlay.is-open .header-premium__mobile-panel {
+  transform: translateY(0);
+}
+
+.header-premium__mobile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-block-end: 1px solid var(--h-border);
+}
+
+.header-premium__mobile-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--h-border);
+  }
+}
+
+.header-premium__mobile-list {
+  list-style: none;
+  margin: 0;
+  padding: 12px 8px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.header-premium__mobile-item {
+  border-block-end: 1px solid var(--h-border);
+}
+
+.header-premium__mobile-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 12px;
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 600;
+  color: inherit;
+
+  // staggered entrance — header-premium.js sets --i per item index
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  transition-delay: calc(var(--i, 0) * 50ms);
+}
+
+.header-premium__mobile-overlay.is-open .header-premium__mobile-link {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.header-premium__mobile-sub {
+  list-style: none;
+  margin: 0;
+  padding-inline-start: 16px;
+  padding-block-end: 10px;
+  display: none;
+  flex-direction: column;
+}
+
+.header-premium__mobile-item.is-open .header-premium__mobile-sub {
+  display: flex;
+}
+
+.header-premium__mobile-sub-link {
+  display: block;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: inherit;
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+    color: var(--h-accent);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Menu-loading skeleton (shown until salla.api.component.getMenus resolves)
+// ---------------------------------------------------------------------------
+.header-premium__menu-skel {
+  display: none;
+  align-items: center;
+  gap: 28px;
+
+  @media (min-width: 768px) {
+    display: flex;
+  }
+
+  span {
+    inline-size: 64px;
+    block-size: 12px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--h-border) 25%, transparent 37%, var(--h-border) 63%);
+    background-size: 400% 100%;
+    animation: header-premium-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes header-premium-shimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}

@@ -22,8 +22,6 @@ class App extends AppHelpers {
     this.initiateModals();
     this.initiateCollapse();
     this.initiateDarkMode();
-    this.initiateSearchSlider();
-    
     // Ensure #more-menu-dropdown exists before running changeMenuDirection
     const menuDirInterval = setInterval(() => {
       if (document.querySelector('#more-menu-dropdown')) {
@@ -291,70 +289,6 @@ isElementLoaded(selector){
 
     salla.cart.event.onItemAdded((response, prodId) => {
       app.element('salla-cart-summary').animateToCart(app.element(`#product-${prodId} img`));
-    });
-  }
-
-  initiateSearchSlider() {
-    const drawer = document.getElementById('search-slider-drawer');
-    if (!drawer) return;
-
-    const openSearch = () => {
-      drawer.classList.remove('pointer-events-none', 'invisible');
-      drawer.classList.add('is-open');
-      document.body.classList.add('overflow-hidden');
-
-      setTimeout(() => {
-        const searchInput = drawer.querySelector('input[type="search"]');
-        if (searchInput) {
-          searchInput.focus();
-        }
-      }, 250);
-    };
-
-    const closeSearch = () => {
-      drawer.classList.remove('is-open');
-      document.body.classList.remove('overflow-hidden');
-      setTimeout(() => {
-        if (!drawer.classList.contains('is-open')) {
-          drawer.classList.add('pointer-events-none', 'invisible');
-        }
-      }, 300);
-    };
-
-    // Trigger buttons for open search slider
-    document.querySelectorAll('[data-search-trigger]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        openSearch();
-      });
-    });
-
-    // Close buttons & overlay
-    document.querySelectorAll('[data-close-search-slider]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        closeSearch();
-      });
-    });
-
-    // Handle salla search::open event if emitted
-    if (window.salla && window.salla.event) {
-      salla.event.on('search::open', () => openSearch());
-    }
-
-    // Keyboard shortcuts (ESC to close, Ctrl+K / Cmd+K to toggle)
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
-        closeSearch();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        if (drawer.classList.contains('is-open')) {
-          closeSearch();
-        } else {
-          openSearch();
-        }
-      }
     });
   }
 }

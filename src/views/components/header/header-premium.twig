@@ -1,0 +1,164 @@
+{#
+| Variable            | Type    | Description                                                                 |
+|---------------------|---------|------------------------------------------------------------------------------|
+| cart                | object  |                                                                                |
+| cart.items_count    | int     |                                                                                |
+| cart.total          | string  | Formatted total ex: "١٠٠ ر.س"                                                 |
+| store.logo          | string  |                                                                                |
+| store.name          | string  |                                                                                |
+| store.url           | string  |                                                                                |
+| store.scope         | ?object | current branch, null unless the "branches" feature is enabled                |
+| store.settings      | object  | .is_multilingual / .currencies_enabled toggle the localization pill          |
+| theme.settings.get  | fn      | reads a value declared in the "settings" array of twilight.json              |
+
+  Premium header (Celia-inspired) — alternative to header.twig, selected from
+  master.twig via theme.settings.get('enable_premium_header').
+
+  ASSUMPTIONS — please verify against live Twilight docs/dashboard once available:
+  1. Customer wishlist page route slug is `customer.wishlist` (matches the
+     src/views/pages/customer/wishlist.twig file convention used elsewhere in
+     this theme; confirmed against Salla's Wishlist Page Guide).
+  2. There is no ready-made "wishlist summary" web component in Twilight (checked
+     against the upstream SallaApp/theme-raed header — it has none either), so
+     the live badge count is computed client-side in header-premium.js from
+     `salla.storage.get('salla::wishlist', [])` + `salla.wishlist.event.on*`,
+     the same primitives src/assets/js/wishlist.js already relies on.
+  3. `sicon-search` is confirmed present in Salla's icon font (grepped inside
+     node_modules/@salla.sa/twilight-components). There is no `sicon-heart` in
+     that font though — Salla's own salla-product-card wishlist toggle draws
+     an inline IcoMoon SVG instead, so the wishlist icon below reuses that
+     exact path for visual consistency with the rest of the storefront.
+  4. The search icon dispatches `salla.event.dispatch('search::open')` to open
+     the sitewide `<salla-search data-testid="store-search-modal">` instance
+     already rendered once in master.twig — confirmed by reading
+     node_modules/@salla.sa/twilight-components' salla-search source
+     (`salla.event.on('search::open', () => this.open())`), the same
+     dispatch/listen idiom this theme already uses for `scopes::open` below.
+  5. Dark/light mode is intentionally NOT reimplemented here — it reuses the
+     site-wide mechanism already shipped in master.twig (FOUC-safe inline
+     script) and app.js `initiateDarkMode()` (localStorage key
+     `aser-color-mode`, `.dark` class on `<html>`), triggered by the same
+     `[data-dark-mode-toggle]` attribute used in header.twig.
+  6. The "transparent over hero banner" treatment is intentionally scoped to
+     `is_page('index')` only (via the `.header-premium--hero` modifier) rather
+     than sitewide — a transparent header with light-on-hero text would be
+     unreadable on inner pages that don't open with a full-bleed banner. If a
+     merchant relies on `fixed-banner`/hero blocks on other page types too,
+     extend this condition accordingly.
+#}
+{% set announcement_text = theme.settings.get('announcement_text') %}
+{% set announcement_link = theme.settings.get('announcement_link') %}
+{% set show_announcement = theme.settings.get('enable_announcement_bar', true) and announcement_text %}
+{% set show_wishlist = theme.settings.get('enable_wishlist_icon', true) %}
+{% set show_dark_toggle = theme.settings.get('enable_dark_mode_toggle', true) %}
+{% set show_localization = store.settings.is_multilingual or store.settings.currencies_enabled %}
+
+<a href="#main-content" class="skip-to-content">{{ trans('common.titles.skip_to_content') }}</a>
+
+{# Scroll sentinel — sits in normal flow *before* the sticky header so the
+   IntersectionObserver in header-premium.js can flip the header's background
+   from transparent to solid the instant it scrolls out of the viewport. #}
+<span class="header-premium-sentinel" data-scroll-sentinel aria-hidden="true"></span>
+
+{% if show_announcement %}
+<div class="announcement-bar" data-announcement-bar data-announcement-text="{{ announcement_text|e('html_attr') }}">
+  <div class="container announcement-bar__inner">
+    <div class="announcement-bar__spacer" aria-hidden="true"></div>
+    {% if announcement_link %}
+      <a href="{{ announcement_link }}" class="announcement-bar__text">{{ announcement_text }}</a>
+    {% else %}
+      <p class="announcement-bar__text">{{ announcement_text }}</p>
+    {% endif %}
+    <button type="button" class="announcement-bar__close" data-announcement-dismiss aria-label="{{ trans('common.titles.dismiss_announcement') }}">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+</div>
+{% endif %}
+
+<header data-testid="store-header-premium" id="premium-header" class="header-premium font-primary{{ is_page('index') ? ' header-premium--hero' : '' }}" data-header-premium>
+  <div class="header-premium__row container">
+
+    {# ============ START (right side in RTL): burger + logo ============ #}
+    <div class="header-premium__group header-premium__group--start">
+      <button type="button" class="header-premium__burger" data-mobile-menu-toggle aria-haspopup="true" aria-expanded="false" aria-controls="premium-mobile-nav" aria-label="{{ trans('blocks.header.main_menu') }}">
+        <span class="header-premium__burger-bar"></span>
+        <span class="header-premium__burger-bar"></span>
+        <span class="header-premium__burger-bar"></span>
+      </button>
+
+      <a href="{{ store.url }}" class="header-premium__logo" data-testid="store-header-logo" aria-label="{{ store.name }}">
+        {% if store.logo %}
+          <img src="{{ store.logo|cdn(200) }}" alt="{{ store.name }}" class="header-premium__logo-img" width="160" height="56" fetchpriority="high">
+        {% else %}
+          {# graceful fallback when no logo image is set: elegant serif wordmark #}
+          <span class="header-premium__wordmark">{{ store.name }}</span>
+        {% endif %}
+        {% if is_page('index') %}
+          <h1 class="sr-only">{{ store.name }}</h1>
+        {% else %}
+          <h2 class="sr-only">{{ store.name }}</h2>
+        {% endif %}
+      </a>
+    </div>
+
+    {# ============ CENTER: primary navigation (desktop) ============ #}
+    <div class="header-premium__group header-premium__group--center">
+      <premium-main-menu
+        class="header-premium__menu-root"
+        data-store-name="{{ store.name|e('html_attr') }}"
+        data-menu-label="{{ trans('blocks.header.main_menu')|e('html_attr') }}"
+        data-close-label="{{ trans('common.titles.close_menu')|e('html_attr') }}"
+      ></premium-main-menu>
+    </div>
+
+    {# ============ END (left side in RTL): utility icons ============ #}
+    <div class="header-premium__group header-premium__group--end">
+
+      {% if show_localization or store.scope %}
+        <div class="header-premium__utility-pills">
+          {% if store.scope %}
+            <button type="button" class="header-premium__pill" onclick="salla.event.dispatch('scopes::open', {'mode': 'default'})">
+              <i class="sicon-location"></i>
+              <span class="truncate max-w-[90px]">{{ store.scope.name }}</span>
+            </button>
+          {% endif %}
+          {% if show_localization %}
+            <salla-localization-modal data-testid="store-header-localization" show-trigger class="header-premium__pill"></salla-localization-modal>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {# Search: opens the sitewide salla-search modal already rendered once in master.twig (see assumption #4 above) #}
+      <button type="button" class="header-premium__icon-btn" aria-label="{{ trans('common.titles.search') }}" onclick="salla.event.dispatch('search::open')">
+        <i class="sicon-search"></i>
+      </button>
+
+      {% if show_wishlist %}
+        {# Heart glyph matches Salla's own salla-product-card wishlist icon (IcoMoon path) — there is no sicon-heart in the icon font. #}
+        <a href="{{ link('customer.wishlist') }}" class="header-premium__icon-btn" data-wishlist-trigger aria-label="{{ trans('common.titles.wishlist') }}">
+          <svg viewBox="0 0 32 32" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M23.333 2.267c-3.547 0-5.779 1.605-7.333 3.061-1.555-1.456-3.787-3.061-7.333-3.061-5.955 0-8.667 5.045-8.667 9.733 0 8.503 10.147 14.735 15.513 16.841 0.156 0.061 0.321 0.092 0.487 0.092s0.331-0.031 0.487-0.092c5.367-2.107 15.513-8.339 15.513-16.841 0-4.688-2.712-9.733-8.667-9.733zM16 26.161c-5.537-2.309-13.333-7.799-13.333-14.161 0-3.517 1.856-7.067 6-7.067 2.983 0 4.656 1.451 6.384 3.203 0.5 0.508 1.399 0.508 1.899 0 1.728-1.752 3.401-3.203 6.384-3.203 4.144 0 6 3.549 6 7.067 0 6.363-7.796 11.852-13.333 14.161z"/></svg>
+          <span class="header-premium__badge" data-wishlist-count hidden>0</span>
+        </a>
+      {% endif %}
+
+      <div class="header-premium__icon-btn header-premium__icon-btn--account">
+        <salla-user-menu data-testid="store-header-user-menu" avatar-only show-header show-trigger></salla-user-menu>
+      </div>
+
+      <div class="header-premium__icon-btn header-premium__icon-btn--cart" data-cart-icon>
+        <salla-cart-summary data-testid="store-header-cart">
+          <i slot="icon" class="sicon-shopping-bag"></i>
+        </salla-cart-summary>
+      </div>
+
+      {% if show_dark_toggle %}
+        <button type="button" class="header-premium__icon-btn dark-mode-toggle" data-dark-mode-toggle aria-label="{{ trans('common.titles.toggle_dark_mode') }}">
+          <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
+        </button>
+      {% endif %}
+    </div>
+
+  </div>
+</header>
