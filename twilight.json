@@ -160,6 +160,113 @@
         },
         {
             "type": "static",
+            "format": "title",
+            "id": "static-label8",
+            "value": "<div class='rounded-lg' style='background-color: #21636d; display: flex; justify-content: center; align-items: center;padding: 15px;margin-bottom: 20px !important; flex-direction: column;gap: 15px;'><h6 style='color: #ffffff;font-size: 15px; font-weight: bold;'> هيدر Art Edges</h6></div>",
+            "variant": "h6"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "لون خلفية الهيدر",
+            "description": null,
+            "id": "hd_bg",
+            "format": "color",
+            "required": false,
+            "value": "#f9f7f2"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "لون النص والروابط",
+            "description": null,
+            "id": "hd_text",
+            "format": "color",
+            "required": false,
+            "value": "#2f3336"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "لون التفاعل (Hover)",
+            "description": "يظهر عند تمرير الفأرة فوق الروابط والأيقونات",
+            "id": "hd_hover",
+            "format": "color",
+            "required": false,
+            "value": "#80270f"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "خلفية القائمة المنسدلة",
+            "description": null,
+            "id": "hd_drop_bg",
+            "format": "color",
+            "required": false,
+            "value": "#ffffff"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "حدود القائمة المنسدلة",
+            "description": null,
+            "id": "hd_drop_border",
+            "format": "color",
+            "required": false,
+            "value": "#f1f1f1"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "نص القائمة المنسدلة",
+            "description": null,
+            "id": "hd_drop_text",
+            "format": "color",
+            "required": false,
+            "value": "#6c747b"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-edit",
+            "label": "أقصى عرض للشعار (بالبكسل)",
+            "description": "أدخل رقمًا فقط، مثال: 150",
+            "id": "hd_logo_width",
+            "format": "text",
+            "required": false,
+            "value": "150"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-edit",
+            "label": "نص الشريط العلوي",
+            "description": "اتركه فارغًا مع زر الشريط لإخفاء الشريط العلوي بالكامل",
+            "id": "hd_topbar_text",
+            "format": "text",
+            "required": false,
+            "value": "خصم يصل إلى ٣٥٪ + شحن مجاني"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-edit",
+            "label": "نص زر الشريط العلوي",
+            "description": null,
+            "id": "hd_topbar_cta",
+            "format": "text",
+            "required": false,
+            "value": "تسوق الآن"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-link",
+            "label": "رابط زر الشريط العلوي",
+            "description": "إذا تُرك فارغًا سيتم استخدام رابط المتجر الرئيسي",
+            "id": "hd_topbar_cta_url",
+            "format": "text",
+            "required": false,
+            "value": ""
+        },
+        {
+            "type": "static",
             "id": "static-line3",
             "format": "line"
         },
