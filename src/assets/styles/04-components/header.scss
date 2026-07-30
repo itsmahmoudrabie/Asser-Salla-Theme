@@ -1,99 +1,65 @@
 
 /* Top Nav */
 .top-navbar {
-  @apply flex py-2 min-h-[48px];
+  @apply flex min-h-[44px] transition-colors duration-300;
 
-  @screen lg {
-    @apply py-1.5;
+  .s-search-input {
+    @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60 rounded-full px-4 py-1.5 text-xs text-gray-700 dark:text-gray-200 transition-all duration-300;
+
+    &:focus {
+      @apply bg-white shadow-md border-primary outline-none;
+    }
   }
 
-  .topnav-has-bg & {
-    @apply bg-[color:var(--topnav-bg)];
+  html.dark .s-search-input:focus {
+    @apply bg-gray-800;
   }
 
-  .topnav-has-gradient & {
-    @apply bg-gradient-to-r from-[color:var(--topnav-gradient-from)] to-[color:var(--topnav-gradient-to)];
-  }
-
-  .topnav-has-text-color & {
-    @apply text-[color:var(--topnav-text-color)];
-  }
-
-  .s-search-input{
-    @apply bg-gray-200/50 hover:bg-gray-200/70 border-none;
+  .s-search-results {
+    @apply z-50 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden backdrop-blur-xl bg-white/95 dark:bg-darker/95;
   }
 
   @media (max-width: 640px) {
-    .s-search-results{
+    .s-search-results {
       @apply w-screen max-w-[100vw] rtl:-left-2.5 ltr:-right-2.5; 
     }
   } 
+}
 
-  .topnav-is-dark & {
-    @apply bg-dark text-gray-300;
+/* Header Pill Buttons */
+.header-pill-btn {
+  @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 bg-white/70 dark:bg-gray-800/70 border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm transition-all duration-300 cursor-pointer shadow-sm;
 
-    .btn--circle-gray,
-    .btn--rounded-gray,
-    .s-search-input{
-      @apply bg-gray-100/10 hover:bg-gray-100/[0.15]
-    }
-
-    .topnav-link-item{
-      @apply border-gray-300/10;
-    }
-
-    .s-search-input{
-      @apply text-white;
-    }
-  }
-
-  .search-btn{
-    @apply grow sm:grow-0 justify-start md:justify-center;
+  &:hover {
+    @apply text-primary border-primary;
+    background-color: rgba(var(--color-primary-rgb, 92, 213, 196), 0.1);
   }
 }
 
-// contacs menu items - pages menu items
-.topnav-link-item{
-  @apply inline-block transition duration-300 px-4 rtl:last:pl-0 ltr:last:pr-0 py-px text-sm leading-none ltr:border-r rtl:border-l border-gray-200 ltr:last:border-0 rtl:last:border-0 hover:opacity-80;
-
-  &.right-side{
-    @apply rtl:first:pr-0 ltr:first:pl-0
-  }
+/* Contacts & Top Nav Items */
+.topnav-link-item {
+  @apply inline-block transition duration-300 px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-primary leading-none;
 }
 
-/* Main Nav */
+/* Main Nav Container */
 .main-nav-container {
-  @apply min-h-[68px] lg:min-h-[84px];
+  @apply min-h-[64px] lg:min-h-[76px];
   
-  // Custom background Color
   .has-bg &,
-  .has-bg & .sub-menu{
+  .has-bg & .sub-menu {
     @apply bg-[color:var(--mainnav-bg)];
   }
 
-  // Custom text color
   .has-text-color & {
     @apply text-[color:var(--mainnav-text-color)];
   }
 }
 
-.menu-item {
-  @apply flex items-center px-6 py-2.5 sm:text-sm text-gray-500 transition-colors duration-300 hover:bg-gray-200/30;
-
-  &.logout{
-    @apply text-red-400;
-  }
-
-  &.is-active{
-    @apply text-primary bg-gray-200/20;
-  }
-}
-
-/* Sticky Header */
+/* Sticky Header Refinements */
 .main-nav-container {
   &.animated {
     .inner {
-      transition: top 0.5s, transform 0.5s, -webkit-transform 0.5s, opacity 0.4s;
+      transition: top 0.4s ease, transform 0.4s ease, opacity 0.3s ease;
     }
   }
 
@@ -104,8 +70,10 @@
       right: 0;
       left: 0;
       width: 100%;
-      z-index: 29;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      z-index: 40;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
       transform: translate3d(0, -100%, 0);
 
       @media (max-width: 1024px){
@@ -114,19 +82,8 @@
       }
     }
 
-    .navbar-brand {
-      img {
-        max-height: 40px;
-      }
-
-      h4 {
-        line-height: 1;
-      }
-    }
-
-    .main-menu > li > a {
-      padding-top: 20px;
-      padding-bottom: 20px;
+    .navbar-brand img {
+      max-height: 38px;
     }
   }
 
@@ -143,88 +100,56 @@
 }
 
 .navbar-brand {
-  @apply items-center flex my-2 lg:my-0;
+  @apply items-center flex my-1 lg:my-0 transition-transform duration-300;
 
   img {
-    @apply w-auto max-h-12 max-w-[100px] xs:max-w-[170px];
+    @apply w-auto max-h-12 max-w-[120px] xs:max-w-[170px] transition-all duration-300;
   }
 }
 
-// Mainnav cart icon
-.header-btn{
-  @apply border-none outline-none transition-opacity hover:opacity-80;
+/* Header Action Buttons & Icons */
+.header-action-btn {
+  @apply shrink-0 flex items-center justify-center rounded-full p-1 transition-all duration-300 hover:scale-105;
+}
 
-  &__icon{
-    @apply text-xl w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-700;
-    &.icon{
-      @apply mr-[9px] rtl:ml-[9px] rtl:mr-[unset];
+.header-btn {
+  @apply border-none outline-none transition-all duration-300 hover:opacity-90;
+
+  &__icon {
+    @apply text-lg w-10 h-10 rounded-full border border-gray-200/80 dark:border-gray-700/80 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm flex items-center justify-center text-gray-700 dark:text-gray-200 transition-all duration-300 hover:border-primary hover:text-primary hover:shadow-sm;
+    &.icon {
+      @apply mr-[8px] rtl:ml-[8px] rtl:mr-[unset];
     }
   }
 }
 
-.header-buttons .sicon-sar {
-  width: 0.65rem;
-  display: inline-block;
-min-height: 1.4rem;
-}
-
-#mainnav .sicon-menu {
-  width: 1rem;
-  display: inline-block
-}
-
-custom-main-menu {
-  min-height: 84px
-}
-
 salla-cart-summary {
-  min-width: 73px;
-  min-height: 40px
-}
-salla-user-menu{
-  @apply shrink-0;
+  min-width: 72px;
+  min-height: 40px;
+  @apply transition-transform duration-300 hover:scale-105;
 }
 
-// cart summary
-.s-cart-summary-total{
-  @apply text-black font-[600];
+salla-user-menu {
+  @apply shrink-0 transition-transform duration-300 hover:scale-105;
 }
 
-.s-cart-summary-count{
-  @apply -top-0.5 ltr:-left-1.5 rtl:-right-1.5 bg-red-800;
+.s-cart-summary-total {
+  @apply text-gray-900 dark:text-white font-semibold text-sm;
 }
 
-#nav-cart{
-  @apply flex items-center rtl:mr-4 ltr:ml-4 relative whitespace-nowrap;
+.s-cart-summary-count {
+  @apply -top-1 ltr:-left-1 rtl:-right-1 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm;
+}
 
-  .icon{
-    @apply rtl:ml-2 ltr:mr-2;
-  }
-
-  span{
-    @apply absolute top-1 rtl:-right-2 ltr:-left-2;
+// Search container
+.header-search {
+  .s-search-results {
+    @apply z-30;
   }
 }
-
-
-// Search
-.header-search{
-  .s-search-results{
-    @apply z-10;
-  }
-}
-
 
 /* ============================
-   Menu Skeletons (loading state)
-
-   Only the two menus need a placeholder — they wait on an API request.
-   The other Salla components (search, lang/currency, contacts) render
-   their content synchronously and don't need a skeleton.
-
-   - Top-nav menu : CSS-only via salla-menu[topnav]:not(.hydrated) pseudos
-   - Main menu    : initial innerHTML seeded by NavigationMenu, replaced
-                    when render() runs (`.main-menu-skel` block)
+   Menu Skeletons & Shimmers
    ============================ */
 
 @keyframes header-skel-shimmer {
@@ -245,11 +170,6 @@ salla-user-menu{
   animation: header-skel-shimmer 1.4s ease-in-out infinite;
 }
 
-// ── Top-nav menu — pure CSS via pseudo-elements ─────────────────
-// Stencil hides every <salla-*> with `visibility:hidden` until the
-// `.hydrated` class is added (which restores visibility: inherit).
-// Override that for our pre-hydration state so the pseudo-element
-// pills are actually visible.
 salla-menu[topnav]:not(.hydrated) {
   @apply hidden lg:inline-flex items-center gap-2;
   visibility: visible;
@@ -266,9 +186,8 @@ salla-menu[topnav]:not(.hydrated) {
   &::after  { width: 50px; }
 }
 
-// ── Main menu — DOM seeded by NavigationMenu ────────────────────
 .main-menu-skel {
-  @apply hidden lg:inline-flex items-center gap-4 mx-6 py-8;
+  @apply hidden lg:inline-flex items-center gap-4 mx-6 py-6;
 }
 
 .header-skel-item {
@@ -278,11 +197,9 @@ salla-menu[topnav]:not(.hydrated) {
   width: 80px;
 }
 
-.header-skel-item--menu { height: 14px; width: 80px; }
-
-// ── Dark mode toggle button ─────────────────────────────────────
+/* Dark mode toggle button */
 .dark-mode-toggle {
-  @apply inline-flex items-center justify-center;
+  @apply inline-flex items-center justify-center transition-transform duration-300 hover:rotate-12;
 
   &__icon {
     @apply text-primary;
@@ -303,7 +220,6 @@ html.dark .dark-mode-toggle {
   }
 }
 
-// ── Dark topnav variant — lift contrast on dark backgrounds ─────
 .topnav-is-dark {
   .top-navbar salla-menu[topnav]:not(.hydrated)::before,
   .top-navbar salla-menu[topnav]:not(.hydrated)::after {
@@ -315,4 +231,4 @@ html.dark .dark-mode-toggle {
       rgba(255, 255, 255, 0) 100%
     );
   }
-}
+}
