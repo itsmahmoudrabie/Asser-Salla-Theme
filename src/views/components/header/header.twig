@@ -6,255 +6,279 @@
 | cart.total       | string  | Formatted total ex: "١٠٠ ر.س"   |
 
   ============================================================================
-  هيدر «آسر» المميز — Luxury Minimal (مستوحى من سيليا)
+  هيدر «آسر» — Luxury Minimal
   ============================================================================
 
-  ملاحظة معمارية مهمة (سبب كتابة الـ CSS/JS جوه الملف):
-  مجلد public/ (ملفات البناء) مرفوع على git وسلة بتستهلكه جاهزًا، وأمر البناء
-  الحالي بيفشل بسبب عدم توافق tailwindcss v4 مع @salla.sa/twilight-tailwind-theme.
-  يعني أي ملف CSS/JS جديد مش هيتولد في public/، وأي استدعاء بفلتر asset
-  لملف غير موجود كان بيسقط الصفحة بالكامل (صفحة بيضاء).
+  لماذا الـ CSS/JS مكتوبان داخل الملف:
+  مجلد public/ (ملفات البناء) مرفوع على git وسلة تستهلكه جاهزًا، وأمر البناء
+  الحالي يفشل بسبب عدم توافق tailwindcss v4 مع @salla.sa/twilight-tailwind-theme.
+  أي ملف CSS/JS جديد لن يُولَّد في public/، وأي استدعاء بفلتر asset لملف غير
+  موجود كان يُسقط الصفحة بالكامل. لذلك هذا الهيدر مكتفٍ ذاتيًا: لا ملفات
+  جديدة، لا asset()، لا إعدادات جديدة، ولا تعديل في master.twig — فيعمل بلا
+  حاجة إلى build. عند إصلاح البناء يمكن نقل الـ CSS إلى header.scss والـ JS
+  إلى app.js حرفيًا دون تغيير الماركب.
 
-  عشان كده الهيدر ده مكتفٍ ذاتيًا بالكامل:
-    • مفيش ملفات جديدة    • مفيش asset() لملفات غير مبنية
-    • مفيش إعدادات جديدة  • مفيش تعديل في master.twig
-  فهو بيشتغل من غير ما يحتاج build خالص. لما مشكلة الـ build تتحل، ينفع
-  ينتقل الـ CSS لـ 04-components/header.scss والـ JS لـ app.js بدون أي
-  تغيير في الماركب.
+  لغة التصميم (مقتبسة كمبادئ، ومُعاد بناؤها أصلًا لـ Twig/RTL):
+  الفخامة تأتي من العرض الكامل والمساحات الواسعة والخط الخفيف — لا من الزخرفة.
+    • عرض كامل بحواف واسعة بدل حاوية ضيقة
+    • خط قائمة خفيف (وزن 500) بتباعد سخي بين العناصر
+    • ملاحظة عربية مهمة: لا نستخدم letter-spacing على النص العربي لأنه يفصل
+      الحروف المتصلة ويكسر شكلها؛ نعوّضه بالتباعد بين العناصر نفسها
+    • مؤشر سفلي رفيع (1px) ينمو من المنتصف
+    • أيقونات SVG بحدود رفيعة (1.4px) بدل أيقونات مصمتة
 
-  بيعيد استخدام الآليات المثبتة في الثيم بدل ما يخترع بدائل:
+  يعيد استخدام آليات الثيم المثبتة بدل اختراع بدائل:
     • <custom-main-menu>        القائمة (main-menu.js، محمّل من master.twig)
     • a[href="#mobile-menu"]    قائمة الموبايل (mmenu في app.js)
     • [data-dark-mode-toggle]   الوضع الداكن (initiateDarkMode في app.js)
     • salla.event.dispatch('search::open')  نافذة البحث المرندرة في master.twig
     • salla-user-menu / salla-cart-summary / salla-localization-modal
-  ولا يستخدم id="mainnav" عمدًا، عشان initiateStickyMenu في app.js يتخطى
-  نفسه ولا يتعارض مع التثبيت المعمول هنا بـ position:sticky.
+  ولا يستخدم id="mainnav" عمدًا كي يتخطى initiateStickyMenu نفسه فلا يتعارض
+  مع التثبيت المعمول هنا بـ position:sticky.
 #}
 {% set announcement_text = theme.settings.get('announcement_text', 'شحن مجاني لجميع الطلبات — لفترة محدودة') %}
 {% set show_dark_toggle  = theme.settings.get('enable_dark_mode_toggle', true) %}
 {% set show_localization = store.settings.is_multilingual or store.settings.currencies_enabled %}
 
 <style>
-  /* ===== توكنات الهيدر — مبنية فوق متغيرات الثيم الموجودة في app.css ===== */
-  .aser-header, .aser-topbar {
-    --h-h: 66px;                 /* ارتفاع الموبايل */
-    --h-h-sm: 56px;              /* بعد التصغير */
-    --h-bg: var(--color-ivory, #F7F3EC);
-    --h-fg: var(--main-text-color, #2B2926);
-    --h-accent: var(--color-primary, #B08D57);
-    --h-line: rgba(43, 41, 38, .10);
-    --h-soft: rgba(43, 41, 38, .05);
-    --h-shadow: 0 8px 30px -12px rgba(43, 41, 38, .22);
-    --h-ease: cubic-bezier(.4, 0, .2, 1);
+  /* ===== توكنات الهيدر — مبنية فوق متغيرات الثيم في app.css ===== */
+  .aser-hd, .aser-tb {
+    --hd-h: 62px;                       /* الموبايل */
+    --hd-h-sm: 54px;
+    --hd-pad: 18px;                     /* حواف جانبية */
+    --hd-bg: var(--color-ivory, #F7F3EC);
+    --hd-fg: var(--main-text-color, #2B2926);
+    --hd-accent: var(--color-primary, #B08D57);
+    --hd-line: rgba(43, 41, 38, .09);
+    --hd-soft: rgba(43, 41, 38, .045);
+    --hd-mute: rgba(43, 41, 38, .58);
+    --hd-shadow: 0 6px 34px -14px rgba(43, 41, 38, .26);
+    --hd-e: cubic-bezier(.4, 0, .2, 1);
   }
-  @media (min-width: 768px) {
-    .aser-header, .aser-topbar { --h-h: 82px; --h-h-sm: 62px; }
-  }
-  html.dark .aser-header, html.dark .aser-topbar {
-    --h-line: rgba(247, 243, 236, .12);
-    --h-soft: rgba(247, 243, 236, .06);
-    --h-shadow: 0 8px 30px -12px rgba(0, 0, 0, .6);
+  @media (min-width: 768px)  { .aser-hd, .aser-tb { --hd-h: 78px; --hd-h-sm: 62px; --hd-pad: 34px; } }
+  @media (min-width: 1280px) { .aser-hd, .aser-tb { --hd-h: 92px; --hd-h-sm: 68px; --hd-pad: 54px; } }
+  @media (min-width: 1600px) { .aser-hd, .aser-tb { --hd-pad: 72px; } }
+
+  html.dark .aser-hd, html.dark .aser-tb {
+    --hd-line: rgba(247, 243, 236, .12);
+    --hd-soft: rgba(247, 243, 236, .06);
+    --hd-mute: rgba(247, 243, 236, .62);
+    --hd-shadow: 0 6px 34px -14px rgba(0, 0, 0, .62);
   }
 
-  /* ===== شريط الإعلان ===== */
-  .aser-topbar {
-    background: var(--h-accent);
-    color: #fff;
+  /* ===== الشريط العلوي — رفيع وهادئ ===== */
+  .aser-tb {
+    background: var(--hd-bg);
+    color: var(--hd-mute);
+    border-bottom: 1px solid var(--hd-line);
     overflow: hidden;
     max-height: 46px;
-    transition: max-height .4s var(--h-ease), opacity .3s ease;
+    transition: max-height .45s var(--hd-e), opacity .3s ease;
   }
-  .aser-topbar.is-out { max-height: 0; opacity: 0; }
-  .aser-topbar__in {
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    min-height: 46px; padding-block: 8px;
-    font-size: 13px; font-weight: 500; letter-spacing: .2px;
+  .aser-tb.is-out { max-height: 0; opacity: 0; }
+  .aser-tb__in {
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 40px;
+    padding-inline: var(--hd-pad);
+    font-family: var(--font-body, sans-serif);
+    font-size: 12.5px; font-weight: 500;
   }
-  .aser-topbar__txt {
-    margin: 0; text-align: center;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .aser-topbar__x {
-    position: absolute; inset-inline-end: 14px;
+  .aser-tb__msg { margin: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .aser-tb__msg b { color: var(--hd-accent); font-weight: 600; }
+  .aser-tb__x {
+    position: absolute; inset-inline-end: calc(var(--hd-pad) - 6px);
     display: inline-flex; align-items: center; justify-content: center;
     width: 26px; height: 26px; border-radius: 999px;
-    color: #fff; opacity: .8; transition: opacity .2s, background-color .2s;
+    color: inherit; opacity: .55;
+    transition: opacity .2s, background-color .2s;
   }
-  .aser-topbar__x:hover { opacity: 1; background: rgba(255,255,255,.18); }
-  .aser-topbar__in { position: relative; }
+  .aser-tb__x:hover { opacity: 1; background: var(--hd-soft); }
 
-  /* ===== هيكل الهيدر: sticky + تصغير + إخفاء عند النزول ===== */
-  .aser-header {
+  /* ===== الهيدر: sticky + تصغير + إخفاء عند النزول ===== */
+  .aser-hd {
     position: sticky; top: 0; z-index: 999;
-    background: var(--h-bg); color: var(--h-fg);
-    border-bottom: 1px solid var(--h-line);
+    background: var(--hd-bg); color: var(--hd-fg);
+    border-bottom: 1px solid var(--hd-line);
     transform: translateY(0);
-    transition: transform .35s var(--h-ease), box-shadow .3s var(--h-ease),
-                background-color .3s var(--h-ease), border-color .3s var(--h-ease);
+    transition: transform .4s var(--hd-e), box-shadow .35s var(--hd-e),
+                border-color .35s var(--hd-e), background-color .3s var(--hd-e);
     will-change: transform;
   }
-  .aser-header.is-stuck { box-shadow: var(--h-shadow); }
-  .aser-header.is-hidden { transform: translateY(-100%); }
+  .aser-hd.is-stuck  { box-shadow: var(--hd-shadow); border-bottom-color: transparent; }
+  .aser-hd.is-hidden { transform: translateY(-101%); }
 
-  .aser-header__row {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: clamp(10px, 2.5vw, 28px);
-    height: var(--h-h);
-    transition: height .35s var(--h-ease);
+  /* عرض كامل بحواف واسعة — أهم ما يمنح الإحساس الفخم */
+  .aser-hd__row {
+    display: flex; align-items: center;
+    gap: clamp(12px, 2vw, 30px);
+    height: var(--hd-h);
+    padding-inline: var(--hd-pad);
+    transition: height .4s var(--hd-e);
   }
-  .aser-header.is-stuck .aser-header__row { height: var(--h-h-sm); }
+  .aser-hd.is-stuck .aser-hd__row { height: var(--hd-h-sm); }
 
-  .aser-header__side { display: flex; align-items: center; gap: 6px; min-width: 0; }
-  .aser-header__start { flex: 1 1 0; gap: 10px; }
-  .aser-header__center { flex: 0 1 auto; justify-content: center; min-width: 0; }
-  .aser-header__end { flex: 1 1 0; justify-content: flex-end; }
+  .aser-hd__side { display: flex; align-items: center; min-width: 0; }
+  .aser-hd__start { flex: 1 1 0; gap: 8px; }
+  .aser-hd__mid   { flex: 0 1 auto; justify-content: center; min-width: 0; }
+  .aser-hd__end   { flex: 1 1 0; justify-content: flex-end; gap: 2px; }
 
   /* ===== الشعار ===== */
-  .aser-logo { display: inline-flex; align-items: center; min-width: 0; }
-  .aser-logo img {
-    height: 46px; width: auto; max-width: 190px; object-fit: contain;
-    transition: height .35s var(--h-ease);
+  .aser-hd__logo { display: inline-flex; align-items: center; min-width: 0; }
+  .aser-hd__logo img {
+    height: 44px; width: auto; max-width: 200px; object-fit: contain;
+    transition: height .4s var(--hd-e);
   }
-  .aser-header.is-stuck .aser-logo img { height: 34px; }
+  .aser-hd.is-stuck .aser-hd__logo img { height: 34px; }
   @media (max-width: 767px) {
-    .aser-logo img { height: 34px; max-width: 130px; }
-    .aser-header.is-stuck .aser-logo img { height: 29px; }
+    .aser-hd__logo img { height: 32px; max-width: 132px; }
+    .aser-hd.is-stuck .aser-hd__logo img { height: 28px; }
   }
-  .aser-logo__word {
+  .aser-hd__word {
     font-family: var(--font-heading, "Amiri"), serif;
-    font-size: clamp(21px, 2.4vw, 27px); font-weight: 700;
-    letter-spacing: .5px; color: var(--h-fg); white-space: nowrap;
+    font-size: clamp(22px, 2.3vw, 30px); font-weight: 700;
+    color: var(--hd-fg); white-space: nowrap; line-height: 1;
   }
 
-  /* ===== زر الموبايل (يتحول لـ X) ===== */
-  .aser-burger {
+  /* ===== زر الموبايل ===== */
+  .aser-hd__burger {
     display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 5px; width: 40px; height: 40px; border-radius: 11px; flex: none;
+    margin-inline-start: -8px;
     transition: background-color .2s;
   }
-  .aser-burger:hover { background: var(--h-soft); }
-  .aser-burger i {
-    display: block; width: 19px; height: 1.5px; border-radius: 2px;
-    background: currentColor; transition: transform .3s var(--h-ease), opacity .25s;
+  .aser-hd__burger:hover { background: var(--hd-soft); }
+  .aser-hd__burger i {
+    display: block; width: 18px; height: 1.4px; border-radius: 2px;
+    background: currentColor; transition: transform .35s var(--hd-e), opacity .25s;
   }
-  body.menu-opened .aser-burger i:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-  body.menu-opened .aser-burger i:nth-child(2) { opacity: 0; transform: scaleX(.3); }
-  body.menu-opened .aser-burger i:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-  @media (min-width: 1024px) { .aser-burger { display: none; } }
+  body.menu-opened .aser-hd__burger i:nth-child(1) { transform: translateY(6.4px) rotate(45deg); }
+  body.menu-opened .aser-hd__burger i:nth-child(2) { opacity: 0; transform: scaleX(.2); }
+  body.menu-opened .aser-hd__burger i:nth-child(3) { transform: translateY(-6.4px) rotate(-45deg); }
+  @media (min-width: 1024px) { .aser-hd__burger { display: none; } }
 
-  /* ===== أزرار الأيقونات ===== */
-  .aser-ico {
-    position: relative; display: inline-flex; align-items: center; justify-content: center;
-    width: 42px; height: 42px; border-radius: 999px; flex: none;
-    color: var(--h-fg); font-size: 19px; line-height: 1;
+  /* ===== أزرار الأيقونات — خفيفة وأنيقة ===== */
+  .aser-hd__ico {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border-radius: 999px; flex: none;
+    color: var(--hd-fg);
     transition: background-color .25s, color .25s;
   }
-  .aser-ico:hover { background: var(--h-soft); color: var(--h-accent); }
-  .aser-sep {
-    width: 1px; height: 22px; margin-inline: 6px;
-    background: var(--h-line); flex: none;
+  .aser-hd__ico:hover { background: var(--hd-soft); color: var(--hd-accent); }
+  .aser-hd__ico svg { width: 20px; height: 20px; }
+  .aser-hd__rule {
+    width: 1px; height: 20px; margin-inline: 10px; flex: none;
+    background: var(--hd-line);
   }
-  @media (max-width: 480px) { .aser-sep { display: none; } }
+  @media (max-width: 640px) { .aser-hd__rule { display: none; } }
 
   /* مكوّنات سلة داخل صف الأيقونات */
-  .aser-header salla-cart-summary,
-  .aser-header salla-user-menu {
+  .aser-hd salla-cart-summary,
+  .aser-hd salla-user-menu {
     display: inline-flex; align-items: center; justify-content: center;
     min-width: 0; min-height: 0;
   }
-  .aser-header .s-cart-summary-count {
-    background: var(--h-accent); color: #fff;
-    font-size: 10px; font-weight: 700;
+  .aser-hd .s-cart-summary-count {
+    background: var(--hd-accent); color: #fff;
+    font-size: 10px; font-weight: 700; box-shadow: 0 0 0 2px var(--hd-bg);
   }
-  .aser-header salla-localization-modal { font-size: 13px; }
+  .aser-hd salla-localization-modal { font-size: 12.5px; }
+  .aser-hd .dark-mode-toggle { transition: transform .4s var(--hd-e), background-color .25s, color .25s; }
+  .aser-hd .dark-mode-toggle:hover { transform: rotate(-18deg); }
+  .aser-hd .dark-mode-toggle__icon { width: 19px; height: 19px; }
 
-  /* زر الوضع الداكن — نفس أسماء الكلاسات المستخدمة في الثيم */
-  .aser-header .dark-mode-toggle__icon { width: 18px; height: 18px; }
-  .aser-header .dark-mode-toggle:hover { transform: rotate(12deg); }
-  .aser-header .dark-mode-toggle { transition: transform .3s var(--h-ease), background-color .25s, color .25s; }
-
-  /* ===== القائمة الوسطى — تنسيق <custom-main-menu> الحالي ===== */
-  .aser-header__center .main-menu { margin: 0; padding: 0; }
-  .aser-header__center .main-menu > li.root-level > a {
+  /* ===== القائمة الوسطى — تنسيق <custom-main-menu> ===== */
+  .aser-hd__mid .main-menu { margin: 0; padding: 0; flex-wrap: nowrap; }
+  .aser-hd__mid .main-menu > li.root-level > a {
     position: relative;
-    padding: 8px 2px !important;
-    margin-inline: clamp(9px, 1.1vw, 17px);
+    padding: 10px 0 !important;
+    /* التباعد بين العناصر هو مصدر الأناقة — لا letter-spacing (يكسر العربية) */
+    margin-inline: clamp(12px, 1.5vw, 26px);
     font-family: var(--font-body, sans-serif);
-    font-size: 14.5px; font-weight: 600; letter-spacing: .2px;
-    color: var(--h-fg);
+    font-size: 15px;
+    font-weight: 500;              /* خفيف عن قصد */
+    color: var(--hd-fg);
+    white-space: nowrap;
+    transition: color .3s var(--hd-e);
   }
-  /* الخط المتحرك من المنتصف */
-  .aser-header__center .main-menu > li.root-level > a::before {
-    content: ""; position: absolute; bottom: 0; left: 50%;
-    width: 0; height: 1.5px; background: var(--h-accent);
-    transform: translateX(-50%); transition: width .3s ease;
+  /* مؤشر رفيع ينمو من المنتصف */
+  .aser-hd__mid .main-menu > li.root-level > a::before {
+    content: ""; position: absolute; bottom: 2px; left: 50%;
+    width: 0; height: 1px; background: currentColor;
+    transform: translateX(-50%);
+    transition: width .34s var(--hd-e);
   }
-  .aser-header__center .main-menu > li.root-level:hover > a::before { width: 100%; }
-  .aser-header__center .main-menu > li.root-level:hover > a { color: var(--h-accent); }
-  .aser-header__center .main-menu .sub-menu {
-    border-radius: 14px; border: 1px solid var(--h-line);
-    box-shadow: var(--h-shadow); overflow: hidden; padding: 6px;
+  .aser-hd__mid .main-menu > li.root-level:hover > a,
+  .aser-hd__mid .main-menu > li.root-level.site-nav--active > a { color: var(--hd-accent); }
+  .aser-hd__mid .main-menu > li.root-level:hover > a::before { width: 100%; }
+
+  .aser-hd__mid .main-menu .sub-menu {
+    border-radius: 4px;                       /* حواف حادة أرقى من الدائرية */
+    border: 1px solid var(--hd-line);
+    box-shadow: var(--hd-shadow);
+    padding: 10px;
+    overflow: hidden;
   }
-  html.dark .aser-header__center .main-menu .sub-menu { background: var(--color-navy-dark, #12203A); }
-  .aser-header__center .main-menu .sub-menu li > a { border-radius: 9px; }
+  html.dark .aser-hd__mid .main-menu .sub-menu { background: var(--color-navy-dark, #12203A); }
+  .aser-hd__mid .main-menu .sub-menu li > a {
+    border-radius: 3px; font-size: 14px; font-weight: 400;
+  }
 
-  /* هيكل تحميل القائمة */
-  .aser-header .main-menu-skel { margin: 0; padding: 0; gap: 22px; }
-  .aser-header .header-skel-item { height: 12px; width: 62px; }
+  /* هيكل التحميل */
+  .aser-hd .main-menu-skel { margin: 0; padding: 0; gap: 26px; }
+  .aser-hd .header-skel-item { height: 11px; width: 58px; }
 
-  /* ===== تجاوز بقايا ستايل الهيدر القديم ===== */
-  .aser-header .navbar-brand img { max-height: none; }
-  @media (max-width: 1023px) { .aser-header__center { display: none; } }
+  /* تجاوز بقايا ستايل الهيدر القديم */
+  .aser-hd .navbar-brand img { max-height: none; }
+  @media (max-width: 1023px) { .aser-hd__mid { display: none; } }
 
-  /* تخطي إلى المحتوى */
-  .aser-skip {
+  .aser-hd__skip {
     position: fixed; inset-inline-start: 12px; top: -60px; z-index: 1100;
-    background: var(--h-accent); color: #fff; padding: 10px 18px;
-    border-radius: 999px; font-size: 13px; font-weight: 600;
-    transition: top .2s ease;
+    background: var(--hd-accent); color: #fff; padding: 10px 18px;
+    border-radius: 999px; font-size: 13px; font-weight: 600; transition: top .2s ease;
   }
-  .aser-skip:focus { top: 12px; }
+  .aser-hd__skip:focus { top: 12px; }
 
-  .aser-ico:focus-visible, .aser-burger:focus-visible,
-  .aser-header__center .main-menu > li.root-level > a:focus-visible {
-    outline: 2px solid var(--h-accent); outline-offset: 2px; border-radius: 8px;
+  .aser-hd__ico:focus-visible, .aser-hd__burger:focus-visible,
+  .aser-hd__mid .main-menu > li.root-level > a:focus-visible {
+    outline: 1px solid var(--hd-accent); outline-offset: 3px; border-radius: 4px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .aser-header, .aser-header *, .aser-topbar, .aser-topbar * {
+    .aser-hd, .aser-hd *, .aser-tb, .aser-tb * {
       transition-duration: .01ms !important; animation-duration: .01ms !important;
     }
   }
 </style>
 
-<a href="#main-content" class="aser-skip">تخطي إلى المحتوى</a>
+<a href="#main-content" class="aser-hd__skip">تخطي إلى المحتوى</a>
 
 {% if announcement_text %}
-  <div class="aser-topbar" id="aserTopbar" data-msg="{{ announcement_text }}">
-    <div class="container aser-topbar__in">
-      <p class="aser-topbar__txt">{{ announcement_text }}</p>
-      <button type="button" class="aser-topbar__x" id="aserTopbarX" aria-label="إغلاق الشريط">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  <div class="aser-tb" id="aserTb" data-msg="{{ announcement_text }}">
+    <div class="aser-tb__in">
+      <p class="aser-tb__msg">{{ announcement_text }}</p>
+      <button type="button" class="aser-tb__x" id="aserTbX" aria-label="إغلاق الشريط">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
   </div>
 {% endif %}
 
-<header data-testid="store-header" class="aser-header store-header font-primary" id="aserHeader">
-  <div class="container aser-header__row">
+<header data-testid="store-header" class="aser-hd store-header font-primary" id="aserHd">
+  <div class="aser-hd__row">
 
     {# ===== يمين (RTL): زر الموبايل + الشعار ===== #}
-    <div class="aser-header__side aser-header__start">
-      <a href="#mobile-menu" class="aser-burger" data-testid="store-header-mobile-toggle" aria-label="القائمة">
+    <div class="aser-hd__side aser-hd__start">
+      <a href="#mobile-menu" class="aser-hd__burger" data-testid="store-header-mobile-toggle" aria-label="القائمة">
         <i></i><i></i><i></i>
       </a>
 
-      <a href="{{ store.url }}" class="aser-logo" data-testid="store-header-logo" aria-label="{{ store.name }}">
+      <a href="{{ store.url }}" class="aser-hd__logo" data-testid="store-header-logo" aria-label="{{ store.name }}">
         {% if store.logo %}
-          <img src="{{ store.logo|cdn(220) }}" alt="{{ store.name }}" fetchpriority="high">
+          <img src="{{ store.logo|cdn(260) }}" alt="{{ store.name }}" fetchpriority="high">
         {% else %}
-          <span class="aser-logo__word">{{ store.name }}</span>
+          <span class="aser-hd__word">{{ store.name }}</span>
         {% endif %}
         {% if is_page('index') %}
           <h1 class="sr-only">{{ store.name }}</h1>
@@ -265,14 +289,14 @@
     </div>
 
     {# ===== الوسط: القائمة الرئيسية ===== #}
-    <div class="aser-header__side aser-header__center">
+    <div class="aser-hd__side aser-hd__mid">
       <custom-main-menu></custom-main-menu>
     </div>
 
-    {# ===== يسار (RTL): الأيقونات ===== #}
-    <div class="aser-header__side aser-header__end">
-      <button type="button" class="aser-ico" aria-label="بحث" onclick="salla.event.dispatch('search::open')">
-        <i class="sicon-search"></i>
+    {# ===== يسار (RTL): الأيقونات — SVG بحدود رفيعة ===== #}
+    <div class="aser-hd__side aser-hd__end">
+      <button type="button" class="aser-hd__ico" aria-label="بحث" onclick="salla.event.dispatch('search::open')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
       </button>
 
       {% if show_localization %}
@@ -280,19 +304,19 @@
       {% endif %}
 
       {% if show_dark_toggle %}
-        <button type="button" class="aser-ico dark-mode-toggle" data-dark-mode-toggle aria-label="{{ trans('common.titles.toggle_dark_mode') }}">
-          <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        <button type="button" class="aser-hd__ico dark-mode-toggle" data-dark-mode-toggle aria-label="{{ trans('common.titles.toggle_dark_mode') }}">
+          <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.6"/><path d="M12 1.6v2.2M12 20.2v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M1.6 12h2.2M20.2 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
         </button>
       {% endif %}
 
-      <span class="aser-sep" aria-hidden="true"></span>
+      <span class="aser-hd__rule" aria-hidden="true"></span>
 
-      <div class="aser-ico">
+      <div class="aser-hd__ico">
         <salla-user-menu data-testid="store-header-user-menu" avatar-only show-header show-trigger></salla-user-menu>
       </div>
 
-      <div class="aser-ico">
+      <div class="aser-hd__ico">
         <salla-cart-summary data-testid="store-header-cart">
           <i slot="icon" class="sicon-shopping-bag"></i>
         </salla-cart-summary>
@@ -304,44 +328,41 @@
 
 <script>
 (function () {
-  var header = document.getElementById('aserHeader');
-  if (!header) return;
+  var hd = document.getElementById('aserHd');
+  if (!hd) return;
 
-  /* --- شريط الإعلان: إخفاء قبل الرسم لو المستخدم أغلقه قبل كده --- */
-  var bar = document.getElementById('aserTopbar');
-  if (bar) {
+  /* --- الشريط العلوي: إخفاء قبل الرسم لو أُغلق سابقًا --- */
+  var tb = document.getElementById('aserTb');
+  if (tb) {
     try {
-      if (localStorage.getItem('aser-topbar-off') === bar.dataset.msg) {
-        bar.style.transition = 'none';
-        bar.classList.add('is-out');
-        requestAnimationFrame(function () { bar.style.transition = ''; });
+      if (localStorage.getItem('aser-tb-off') === tb.dataset.msg) {
+        tb.style.transition = 'none';
+        tb.classList.add('is-out');
+        requestAnimationFrame(function () { tb.style.transition = ''; });
       }
     } catch (e) {}
 
-    var x = document.getElementById('aserTopbarX');
+    var x = document.getElementById('aserTbX');
     if (x) x.addEventListener('click', function () {
-      bar.classList.add('is-out');
-      try { localStorage.setItem('aser-topbar-off', bar.dataset.msg || '1'); } catch (e) {}
+      tb.classList.add('is-out');
+      try { localStorage.setItem('aser-tb-off', tb.dataset.msg || '1'); } catch (e) {}
     });
   }
 
-  /* --- التمرير: تصغير + ظل، وإخفاء عند النزول/إظهار عند الصعود --- */
+  /* --- التمرير: ظل + تصغير، وإخفاء عند النزول/إظهار عند الصعود --- */
   var last = window.scrollY, ticking = false;
 
   function onScroll() {
     var y = window.scrollY;
+    hd.classList.toggle('is-stuck', y > 16);
 
-    header.classList.toggle('is-stuck', y > 20);
-
-    if (y <= 120) {
-      header.classList.remove('is-hidden');
-    } else if (y > last + 4) {
-      /* لا نخفي الهيدر أثناء فتح قائمة الموبايل */
-      if (!document.body.classList.contains('menu-opened')) header.classList.add('is-hidden');
-    } else if (y < last - 4) {
-      header.classList.remove('is-hidden');
+    if (y <= 130) {
+      hd.classList.remove('is-hidden');
+    } else if (y > last + 5) {
+      if (!document.body.classList.contains('menu-opened')) hd.classList.add('is-hidden');
+    } else if (y < last - 5) {
+      hd.classList.remove('is-hidden');
     }
-
     last = y;
     ticking = false;
   }
@@ -355,18 +376,17 @@
   onScroll();
 
   /* --- نبضة خفيفة للسلة عند إضافة منتج --- */
-  function bindCartPulse() {
+  function cartPulse() {
     if (!window.salla || !salla.cart || !salla.cart.event) return;
     salla.cart.event.onItemAdded(function () {
-      var c = header.querySelector('salla-cart-summary');
-      if (!c) return;
-      c.animate(
-        [{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(.96)' }, { transform: 'scale(1)' }],
+      var c = hd.querySelector('salla-cart-summary');
+      if (c && c.animate) c.animate(
+        [{ transform: 'scale(1)' }, { transform: 'scale(1.16)' }, { transform: 'scale(.97)' }, { transform: 'scale(1)' }],
         { duration: 460, easing: 'cubic-bezier(.4,0,.2,1)' }
       );
     });
   }
-  if (window.salla && salla.onReady) { salla.onReady(bindCartPulse); }
-  else { document.addEventListener('salla::ready', bindCartPulse); }
+  if (window.salla && salla.onReady) salla.onReady(cartPulse);
+  else document.addEventListener('salla::ready', cartPulse);
 })();
 </script>
