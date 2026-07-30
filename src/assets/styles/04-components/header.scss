@@ -1,18 +1,19 @@
 
 /* Top Nav */
 .top-navbar {
-  @apply flex min-h-[44px] transition-colors duration-300;
+  @apply flex min-h-[42px] items-center transition-colors duration-300;
 
-  .s-search-input {
-    @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60 rounded-full px-4 py-1.5 text-xs text-gray-700 dark:text-gray-200 transition-all duration-300;
-
-    &:focus {
-      @apply bg-white shadow-md border-primary outline-none;
-    }
+  .header-buttons,
+  .header-pill-wrapper {
+    @apply inline-flex items-center gap-2;
   }
 
-  html.dark .s-search-input:focus {
-    @apply bg-gray-800;
+  .s-search-input {
+    @apply bg-slate-800/80 text-white placeholder-slate-400 border border-slate-700/60 rounded-full px-4 py-1.5 text-xs transition-all duration-300;
+
+    &:focus {
+      @apply bg-slate-800 shadow-md border-primary outline-none;
+    }
   }
 
   .s-search-results {
@@ -28,17 +29,17 @@
 
 /* Header Pill Buttons */
 .header-pill-btn {
-  @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 bg-white/70 dark:bg-gray-800/70 border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-sm transition-all duration-300 cursor-pointer shadow-sm;
+  @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-slate-200 bg-slate-800/80 border border-slate-700/60 backdrop-blur-sm transition-all duration-300 cursor-pointer shadow-sm;
 
   &:hover {
     @apply text-primary border-primary;
-    background-color: rgba(var(--color-primary-rgb, 92, 213, 196), 0.1);
+    background-color: rgba(var(--color-primary-rgb, 92, 213, 196), 0.15);
   }
 }
 
 /* Contacts & Top Nav Items */
 .topnav-link-item {
-  @apply inline-block transition duration-300 px-3 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-primary leading-none;
+  @apply inline-block transition duration-300 px-2.5 py-1 text-xs font-medium text-slate-300 hover:text-primary leading-none;
 }
 
 /* Main Nav Container */

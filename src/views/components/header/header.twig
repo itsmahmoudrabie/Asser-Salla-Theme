@@ -6,89 +6,99 @@
 | cart.total       | string  | Formatted total ex: "١٠٠ ر.س"   |
 #}
 {% set important_links = theme.settings.get('important_links') %}
-<header data-testid="store-header" class="store-header relative z-30">
-  {# Top Nav Bar #}
-  <div class="top-navbar bg-gray-50/80 dark:bg-darker/80 backdrop-blur-md border-b border-gray-100/80 dark:border-gray-800/80 transition-colors duration-300">
+<header data-testid="store-header" class="store-header relative z-30 font-primary">
+
+  {# 1. Top Navbar (Bar for announcement, contacts, lang & dark mode) #}
+  <div class="top-navbar bg-slate-900 text-slate-200 border-b border-slate-800 transition-colors duration-300">
     <div class="container flex items-center justify-between gap-4 py-2 text-xs">
-      <div class="flex-1 flex items-center gap-3">
-          {# Navigation Menu Links #}
-          {% if important_links %}
-            <div class="hidden lg:flex items-center">
-              <salla-menu data-testid="store-header-topnav" source="footer" topnav></salla-menu>
-            </div>
-          {% endif %}
-
-          {# Localization (Lang/Currency) & Dark Mode #}
-          <div class="header-buttons flex items-center gap-2">
-              {% if store.settings.is_multilingual or store.settings.currencies_enabled %}
-                  <salla-localization-modal data-testid="store-header-localization" show-trigger class="header-pill-btn"></salla-localization-modal>
-              {% endif %}
-
-              {# Dark Mode Toggle #}
-              {% if theme.settings.get('enable_dark_mode_toggle', true) %}
-                  <button type="button" class="dark-mode-toggle header-pill-btn" data-dark-mode-toggle aria-label="{{ trans('common.titles.toggle_dark_mode') }}">
-                      <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--moon w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                      <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--sun w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
-                  </button>
-              {% endif %}
-          </div>
-
-          {# Scopes / Branches #}
-          {% if store.scope %}
-              <button class="header-pill-btn flex items-center gap-1 text-xs font-medium"
-                      onclick="salla.event.dispatch('scopes::open', {'mode': 'default'})">
-                  <i class="sicon-location text-primary"></i>
-                  <span>{{ store.scope.name }}</span>
-              </button>
-          {% endif %}
-
-          {# Search bar #}
-          <div class="header-search flex-1 max-w-md mx-auto hidden sm:block">
-            <salla-search data-testid="store-header-search" inline oval height="38"></salla-search>
-          </div>
-      </div>
-
+      
+      {# Right side (RTL): Contacts & Links #}
       <div class="flex items-center gap-3">
-        {# Mobile Search Trigger fallback #}
-        <div class="header-search sm:hidden flex-1">
-          <salla-search data-testid="store-header-search" inline oval height="34"></salla-search>
-        </div>
-        <salla-contacts data-testid="store-header-contacts" is-header class="text-xs font-medium"></salla-contacts>
+        <salla-contacts data-testid="store-header-contacts" is-header class="text-xs text-slate-300 font-medium"></salla-contacts>
+        {% if important_links %}
+          <div class="hidden lg:flex items-center border-r border-slate-700/60 pr-3 rtl:border-r-0 rtl:border-l rtl:pr-0 rtl:pl-3">
+            <salla-menu data-testid="store-header-topnav" source="footer" topnav></salla-menu>
+          </div>
+        {% endif %}
       </div>
+
+      {# Center: Quick Search Bar #}
+      <div class="header-search flex-1 max-w-md hidden md:block mx-4">
+        <salla-search data-testid="store-header-search" inline oval height="36"></salla-search>
+      </div>
+
+      {# Left side (RTL): Language, Currency, Dark Mode Toggle, Branch Scope #}
+      <div class="flex items-center gap-2">
+        {% if store.scope %}
+            <button class="header-pill-btn flex items-center gap-1 text-xs"
+                    onclick="salla.event.dispatch('scopes::open', {'mode': 'default'})">
+                <i class="sicon-location text-primary"></i>
+                <span class="truncate max-w-[100px]">{{ store.scope.name }}</span>
+            </button>
+        {% endif %}
+
+        {% if store.settings.is_multilingual or store.settings.currencies_enabled %}
+            <div class="header-pill-wrapper flex items-center">
+              <salla-localization-modal data-testid="store-header-localization" show-trigger></salla-localization-modal>
+            </div>
+        {% endif %}
+
+        {% if theme.settings.get('enable_dark_mode_toggle', true) %}
+            <button type="button" class="dark-mode-toggle header-pill-btn" data-dark-mode-toggle aria-label="{{ trans('common.titles.toggle_dark_mode') }}">
+                <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--moon w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--sun w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
+            </button>
+        {% endif %}
+      </div>
+
     </div>
   </div>
 
-  {# Main Nav Bar #}
-  <div id="mainnav" class="main-nav-container bg-white/95 dark:bg-darker/95 backdrop-blur-lg border-b border-gray-100/80 dark:border-gray-800/80 transition-all duration-300">
+  {# Mobile Search Container for small screens #}
+  <div class="md:hidden bg-slate-900/90 px-4 py-2 border-b border-slate-800">
+    <salla-search data-testid="store-header-search" inline oval height="34"></salla-search>
+  </div>
+
+  {# 2. Main Navigation Bar (Logo, Main Menu, Actions) #}
+  <div id="mainnav" class="main-nav-container bg-white/95 dark:bg-darker/95 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300">
       <div class="inner bg-transparent w-full">
           <div class="container">
-              <div class="flex items-center justify-between py-3 relative">
-                  <div class="flex items-center gap-6">
-                      <a data-testid="store-header-mobile-toggle" class="lg:hidden p-2 rounded-xl bg-gray-100/70 dark:bg-gray-800/70 hover:bg-primary/10 transition-colors leading-none rtl:ml-2 ltr:mr-2" href="#mobile-menu" aria-label="Open-menu">
+              <div class="flex items-center justify-between py-3.5 relative">
+                  
+                  {# Right Side: Mobile Hamburger & Store Logo #}
+                  <div class="flex items-center gap-4 lg:gap-8">
+                      <a data-testid="store-header-mobile-toggle" class="lg:hidden p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-primary/10 transition-colors leading-none" href="#mobile-menu" aria-label="Open-menu">
                         <i class="sicon-menu text-primary text-xl"></i>
                       </a>
-                      <a data-testid="store-header-logo" class="navbar-brand group flex items-center transition-transform duration-300 hover:scale-105" href="{{ store.url }}">
-                          <img fetchpriority="high" class="max-h-12 w-auto object-contain transition-all" src="{{ store.logo|cdn(175) }}" alt="{{ store.name }} logo">
+
+                      <a data-testid="store-header-logo" class="navbar-brand group flex items-center transition-all duration-300 hover:opacity-90" href="{{ store.url }}">
+                          <img fetchpriority="high" class="max-h-12 lg:max-h-14 w-auto object-contain transition-all" src="{{ store.logo|cdn(175) }}" alt="{{ store.name }} logo">
                           {% if is_page('index') %}
                             <h1 class="sr-only">{{ store.name }}</h1>
                           {% else %}
                             <h2 class="sr-only">{{ store.name }}</h2>
                           {% endif %}
                       </a>
-                      <div class="hidden lg:block">
-                        <custom-main-menu></custom-main-menu>
-                      </div>
                   </div>
-                  <div class="flex items-center gap-3 my-1">
+
+                  {# Center: Main Menu Links #}
+                  <div class="hidden lg:flex items-center justify-center flex-1 mx-6">
+                    <custom-main-menu></custom-main-menu>
+                  </div>
+
+                  {# Left Side: Cart & Account Actions #}
+                  <div class="flex items-center gap-3">
                       <div class="header-action-btn">
                         <salla-user-menu data-testid="store-header-user-menu" avatar-only show-header show-trigger></salla-user-menu>
                       </div>
+                      
                       <div class="header-cart-wrapper">
                         <salla-cart-summary data-testid="store-header-cart">
                           <i slot="icon" class="header-btn__icon icon sicon-shopping-bag"></i>
                         </salla-cart-summary>
                       </div>
                   </div>
+
               </div>
           </div>
       </div>
