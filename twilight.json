@@ -169,12 +169,12 @@
             "type": "boolean",
             "icon": "sicon-toggle-off",
             "label": "تفعيل الهيدر المميز",
-            "description": "هيدر بتصميم Luxury Minimal مستوحى من سيليا: شفاف فوق البانر، يصغر عند التمرير، ويختفي وقت النزول ليظهر وقت الصعود. عند التعطيل يعود الهيدر الكلاسيكي",
+            "description": "هيدر بتصميم Luxury Minimal مستوحى من سيليا: شفاف فوق البانر، يصغر عند التمرير، ويختفي وقت النزول ليظهر وقت الصعود. عند التعطيل يعود الهيدر الكلاسيكي. مبدئيًا معطّل لحد ما يتم التأكد إنه بيتعرض صح على المتجر",
             "id": "enable_premium_header",
             "format": "switch",
             "required": false,
-            "value": true,
-            "selected": true
+            "value": false,
+            "selected": false
         },
         {
             "type": "boolean",
