@@ -79,6 +79,7 @@
     {% hook 'head:start' %}
     {% hook head %}
     {% block styles %}{% endblock %}
+    <link rel="preload" href="{{ 'fonts/amiri/Amiri-Regular.woff2'|asset }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ 'app.css' | asset }}">
     <link rel="stylesheet" href="{{ theme.font.path|cdn }}"/>
     <link rel="stylesheet" href="{{ 'fonts/sallaicons.css'|cdn }}"/>

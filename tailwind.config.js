@@ -21,7 +21,8 @@ module.exports = {
                 '-apple-system',
                 'BlinkMacSystemFont',
             ],
-            primary: "var(--font-main)"
+            primary: "var(--font-main)",
+            heading: "var(--font-heading)"
         },
         extend    : {
             transitionTimingFunction: {
