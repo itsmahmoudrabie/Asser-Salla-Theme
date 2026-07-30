@@ -4,104 +4,369 @@
 | cart             | object  |                                 |
 | cart.items_count | int     |                                 |
 | cart.total       | string  | Formatted total ex: "١٠٠ ر.س"   |
+
+  ============================================================================
+  هيدر «آسر» المميز — Luxury Minimal (مستوحى من سيليا)
+  ============================================================================
+
+  ملاحظة معمارية مهمة (سبب كتابة الـ CSS/JS جوه الملف):
+  مجلد public/ (ملفات البناء) مرفوع على git وسلة بتستهلكه جاهزًا، وأمر البناء
+  الحالي بيفشل بسبب عدم توافق tailwindcss v4 مع @salla.sa/twilight-tailwind-theme.
+  يعني أي ملف CSS/JS جديد مش هيتولد في public/، وأي استدعاء بفلتر asset
+  لملف غير موجود كان بيسقط الصفحة بالكامل (صفحة بيضاء).
+
+  عشان كده الهيدر ده مكتفٍ ذاتيًا بالكامل:
+    • مفيش ملفات جديدة    • مفيش asset() لملفات غير مبنية
+    • مفيش إعدادات جديدة  • مفيش تعديل في master.twig
+  فهو بيشتغل من غير ما يحتاج build خالص. لما مشكلة الـ build تتحل، ينفع
+  ينتقل الـ CSS لـ 04-components/header.scss والـ JS لـ app.js بدون أي
+  تغيير في الماركب.
+
+  بيعيد استخدام الآليات المثبتة في الثيم بدل ما يخترع بدائل:
+    • <custom-main-menu>        القائمة (main-menu.js، محمّل من master.twig)
+    • a[href="#mobile-menu"]    قائمة الموبايل (mmenu في app.js)
+    • [data-dark-mode-toggle]   الوضع الداكن (initiateDarkMode في app.js)
+    • salla.event.dispatch('search::open')  نافذة البحث المرندرة في master.twig
+    • salla-user-menu / salla-cart-summary / salla-localization-modal
+  ولا يستخدم id="mainnav" عمدًا، عشان initiateStickyMenu في app.js يتخطى
+  نفسه ولا يتعارض مع التثبيت المعمول هنا بـ position:sticky.
 #}
-{% set important_links = theme.settings.get('important_links') %}
-<header data-testid="store-header" class="store-header relative z-30 font-primary">
+{% set announcement_text = theme.settings.get('announcement_text', 'شحن مجاني لجميع الطلبات — لفترة محدودة') %}
+{% set show_dark_toggle  = theme.settings.get('enable_dark_mode_toggle', true) %}
+{% set show_localization = store.settings.is_multilingual or store.settings.currencies_enabled %}
 
-  {# 1. Top Navbar (Bar for announcement, contacts, lang & dark mode) #}
-  <div class="top-navbar bg-darker text-gray-200 border-b border-gray-800 transition-colors duration-300">
-    <div class="container flex items-center justify-between gap-4 py-2 text-xs">
-      
-      {# Right side (RTL): Contacts & Links #}
-      <div class="flex items-center gap-3">
-        <salla-contacts data-testid="store-header-contacts" is-header class="text-xs text-gray-300 font-medium"></salla-contacts>
-        {% if important_links %}
-          <div class="hidden lg:flex items-center border-r border-gray-700/60 pr-3 rtl:border-r-0 rtl:border-l rtl:pr-0 rtl:pl-3">
-            <salla-menu data-testid="store-header-topnav" source="footer" topnav></salla-menu>
-          </div>
-        {% endif %}
-      </div>
+<style>
+  /* ===== توكنات الهيدر — مبنية فوق متغيرات الثيم الموجودة في app.css ===== */
+  .aser-header, .aser-topbar {
+    --h-h: 66px;                 /* ارتفاع الموبايل */
+    --h-h-sm: 56px;              /* بعد التصغير */
+    --h-bg: var(--color-ivory, #F7F3EC);
+    --h-fg: var(--main-text-color, #2B2926);
+    --h-accent: var(--color-primary, #B08D57);
+    --h-line: rgba(43, 41, 38, .10);
+    --h-soft: rgba(43, 41, 38, .05);
+    --h-shadow: 0 8px 30px -12px rgba(43, 41, 38, .22);
+    --h-ease: cubic-bezier(.4, 0, .2, 1);
+  }
+  @media (min-width: 768px) {
+    .aser-header, .aser-topbar { --h-h: 82px; --h-h-sm: 62px; }
+  }
+  html.dark .aser-header, html.dark .aser-topbar {
+    --h-line: rgba(247, 243, 236, .12);
+    --h-soft: rgba(247, 243, 236, .06);
+    --h-shadow: 0 8px 30px -12px rgba(0, 0, 0, .6);
+  }
 
-      {# Center: Quick Search Bar #}
-      <div class="header-search flex-1 max-w-md hidden md:block mx-4">
-        <salla-search data-testid="store-header-search" inline oval height="36"></salla-search>
-      </div>
+  /* ===== شريط الإعلان ===== */
+  .aser-topbar {
+    background: var(--h-accent);
+    color: #fff;
+    overflow: hidden;
+    max-height: 46px;
+    transition: max-height .4s var(--h-ease), opacity .3s ease;
+  }
+  .aser-topbar.is-out { max-height: 0; opacity: 0; }
+  .aser-topbar__in {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    min-height: 46px; padding-block: 8px;
+    font-size: 13px; font-weight: 500; letter-spacing: .2px;
+  }
+  .aser-topbar__txt {
+    margin: 0; text-align: center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .aser-topbar__x {
+    position: absolute; inset-inline-end: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 999px;
+    color: #fff; opacity: .8; transition: opacity .2s, background-color .2s;
+  }
+  .aser-topbar__x:hover { opacity: 1; background: rgba(255,255,255,.18); }
+  .aser-topbar__in { position: relative; }
 
-      {# Left side (RTL): Language, Currency, Dark Mode Toggle, Branch Scope #}
-      <div class="flex items-center gap-2">
-        {% if store.scope %}
-            <button class="header-pill-btn flex items-center gap-1 text-xs"
-                    onclick="salla.event.dispatch('scopes::open', {'mode': 'default'})">
-                <i class="sicon-location text-primary"></i>
-                <span class="truncate max-w-[100px]">{{ store.scope.name }}</span>
-            </button>
-        {% endif %}
+  /* ===== هيكل الهيدر: sticky + تصغير + إخفاء عند النزول ===== */
+  .aser-header {
+    position: sticky; top: 0; z-index: 999;
+    background: var(--h-bg); color: var(--h-fg);
+    border-bottom: 1px solid var(--h-line);
+    transform: translateY(0);
+    transition: transform .35s var(--h-ease), box-shadow .3s var(--h-ease),
+                background-color .3s var(--h-ease), border-color .3s var(--h-ease);
+    will-change: transform;
+  }
+  .aser-header.is-stuck { box-shadow: var(--h-shadow); }
+  .aser-header.is-hidden { transform: translateY(-100%); }
 
-        {% if store.settings.is_multilingual or store.settings.currencies_enabled %}
-            <div class="header-pill-wrapper flex items-center">
-              <salla-localization-modal data-testid="store-header-localization" show-trigger></salla-localization-modal>
-            </div>
-        {% endif %}
+  .aser-header__row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: clamp(10px, 2.5vw, 28px);
+    height: var(--h-h);
+    transition: height .35s var(--h-ease);
+  }
+  .aser-header.is-stuck .aser-header__row { height: var(--h-h-sm); }
 
-        {% if theme.settings.get('enable_dark_mode_toggle', true) %}
-            <button type="button" class="dark-mode-toggle header-pill-btn" data-dark-mode-toggle aria-label="{{ trans('common.titles.toggle_dark_mode') }}">
-                <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--moon w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--sun w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>
-            </button>
-        {% endif %}
-      </div>
+  .aser-header__side { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .aser-header__start { flex: 1 1 0; gap: 10px; }
+  .aser-header__center { flex: 0 1 auto; justify-content: center; min-width: 0; }
+  .aser-header__end { flex: 1 1 0; justify-content: flex-end; }
 
+  /* ===== الشعار ===== */
+  .aser-logo { display: inline-flex; align-items: center; min-width: 0; }
+  .aser-logo img {
+    height: 46px; width: auto; max-width: 190px; object-fit: contain;
+    transition: height .35s var(--h-ease);
+  }
+  .aser-header.is-stuck .aser-logo img { height: 34px; }
+  @media (max-width: 767px) {
+    .aser-logo img { height: 34px; max-width: 130px; }
+    .aser-header.is-stuck .aser-logo img { height: 29px; }
+  }
+  .aser-logo__word {
+    font-family: var(--font-heading, "Amiri"), serif;
+    font-size: clamp(21px, 2.4vw, 27px); font-weight: 700;
+    letter-spacing: .5px; color: var(--h-fg); white-space: nowrap;
+  }
+
+  /* ===== زر الموبايل (يتحول لـ X) ===== */
+  .aser-burger {
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 5px; width: 40px; height: 40px; border-radius: 11px; flex: none;
+    transition: background-color .2s;
+  }
+  .aser-burger:hover { background: var(--h-soft); }
+  .aser-burger i {
+    display: block; width: 19px; height: 1.5px; border-radius: 2px;
+    background: currentColor; transition: transform .3s var(--h-ease), opacity .25s;
+  }
+  body.menu-opened .aser-burger i:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  body.menu-opened .aser-burger i:nth-child(2) { opacity: 0; transform: scaleX(.3); }
+  body.menu-opened .aser-burger i:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+  @media (min-width: 1024px) { .aser-burger { display: none; } }
+
+  /* ===== أزرار الأيقونات ===== */
+  .aser-ico {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; border-radius: 999px; flex: none;
+    color: var(--h-fg); font-size: 19px; line-height: 1;
+    transition: background-color .25s, color .25s;
+  }
+  .aser-ico:hover { background: var(--h-soft); color: var(--h-accent); }
+  .aser-sep {
+    width: 1px; height: 22px; margin-inline: 6px;
+    background: var(--h-line); flex: none;
+  }
+  @media (max-width: 480px) { .aser-sep { display: none; } }
+
+  /* مكوّنات سلة داخل صف الأيقونات */
+  .aser-header salla-cart-summary,
+  .aser-header salla-user-menu {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 0; min-height: 0;
+  }
+  .aser-header .s-cart-summary-count {
+    background: var(--h-accent); color: #fff;
+    font-size: 10px; font-weight: 700;
+  }
+  .aser-header salla-localization-modal { font-size: 13px; }
+
+  /* زر الوضع الداكن — نفس أسماء الكلاسات المستخدمة في الثيم */
+  .aser-header .dark-mode-toggle__icon { width: 18px; height: 18px; }
+  .aser-header .dark-mode-toggle:hover { transform: rotate(12deg); }
+  .aser-header .dark-mode-toggle { transition: transform .3s var(--h-ease), background-color .25s, color .25s; }
+
+  /* ===== القائمة الوسطى — تنسيق <custom-main-menu> الحالي ===== */
+  .aser-header__center .main-menu { margin: 0; padding: 0; }
+  .aser-header__center .main-menu > li.root-level > a {
+    position: relative;
+    padding: 8px 2px !important;
+    margin-inline: clamp(9px, 1.1vw, 17px);
+    font-family: var(--font-body, sans-serif);
+    font-size: 14.5px; font-weight: 600; letter-spacing: .2px;
+    color: var(--h-fg);
+  }
+  /* الخط المتحرك من المنتصف */
+  .aser-header__center .main-menu > li.root-level > a::before {
+    content: ""; position: absolute; bottom: 0; left: 50%;
+    width: 0; height: 1.5px; background: var(--h-accent);
+    transform: translateX(-50%); transition: width .3s ease;
+  }
+  .aser-header__center .main-menu > li.root-level:hover > a::before { width: 100%; }
+  .aser-header__center .main-menu > li.root-level:hover > a { color: var(--h-accent); }
+  .aser-header__center .main-menu .sub-menu {
+    border-radius: 14px; border: 1px solid var(--h-line);
+    box-shadow: var(--h-shadow); overflow: hidden; padding: 6px;
+  }
+  html.dark .aser-header__center .main-menu .sub-menu { background: var(--color-navy-dark, #12203A); }
+  .aser-header__center .main-menu .sub-menu li > a { border-radius: 9px; }
+
+  /* هيكل تحميل القائمة */
+  .aser-header .main-menu-skel { margin: 0; padding: 0; gap: 22px; }
+  .aser-header .header-skel-item { height: 12px; width: 62px; }
+
+  /* ===== تجاوز بقايا ستايل الهيدر القديم ===== */
+  .aser-header .navbar-brand img { max-height: none; }
+  @media (max-width: 1023px) { .aser-header__center { display: none; } }
+
+  /* تخطي إلى المحتوى */
+  .aser-skip {
+    position: fixed; inset-inline-start: 12px; top: -60px; z-index: 1100;
+    background: var(--h-accent); color: #fff; padding: 10px 18px;
+    border-radius: 999px; font-size: 13px; font-weight: 600;
+    transition: top .2s ease;
+  }
+  .aser-skip:focus { top: 12px; }
+
+  .aser-ico:focus-visible, .aser-burger:focus-visible,
+  .aser-header__center .main-menu > li.root-level > a:focus-visible {
+    outline: 2px solid var(--h-accent); outline-offset: 2px; border-radius: 8px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aser-header, .aser-header *, .aser-topbar, .aser-topbar * {
+      transition-duration: .01ms !important; animation-duration: .01ms !important;
+    }
+  }
+</style>
+
+<a href="#main-content" class="aser-skip">تخطي إلى المحتوى</a>
+
+{% if announcement_text %}
+  <div class="aser-topbar" id="aserTopbar" data-msg="{{ announcement_text }}">
+    <div class="container aser-topbar__in">
+      <p class="aser-topbar__txt">{{ announcement_text }}</p>
+      <button type="button" class="aser-topbar__x" id="aserTopbarX" aria-label="إغلاق الشريط">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
   </div>
+{% endif %}
 
-  {# Mobile Search Container for small screens #}
-  <div class="md:hidden bg-darker/90 px-4 py-2 border-b border-gray-800">
-    <salla-search data-testid="store-header-search" inline oval height="34"></salla-search>
-  </div>
+<header data-testid="store-header" class="aser-header store-header font-primary" id="aserHeader">
+  <div class="container aser-header__row">
 
-  {# 2. Main Navigation Bar (Logo, Main Menu, Actions) #}
-  <div id="mainnav" class="main-nav-container bg-white/95 dark:bg-darker/95 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 shadow-sm transition-all duration-300">
-      <div class="inner bg-transparent w-full">
-          <div class="container">
-              <div class="flex items-center justify-between py-3.5 relative">
-                  
-                  {# Right Side: Mobile Hamburger & Store Logo #}
-                  <div class="flex items-center gap-4 lg:gap-8">
-                      <a data-testid="store-header-mobile-toggle" class="lg:hidden p-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-primary/10 transition-colors leading-none" href="#mobile-menu" aria-label="Open-menu">
-                        <i class="sicon-menu text-primary text-xl"></i>
-                      </a>
+    {# ===== يمين (RTL): زر الموبايل + الشعار ===== #}
+    <div class="aser-header__side aser-header__start">
+      <a href="#mobile-menu" class="aser-burger" data-testid="store-header-mobile-toggle" aria-label="القائمة">
+        <i></i><i></i><i></i>
+      </a>
 
-                      <a data-testid="store-header-logo" class="navbar-brand group flex items-center transition-all duration-300 hover:opacity-90" href="{{ store.url }}">
-                          <img fetchpriority="high" class="max-h-12 lg:max-h-14 w-auto object-contain transition-all" src="{{ store.logo|cdn(175) }}" alt="{{ store.name }} logo">
-                          {% if is_page('index') %}
-                            <h1 class="sr-only">{{ store.name }}</h1>
-                          {% else %}
-                            <h2 class="sr-only">{{ store.name }}</h2>
-                          {% endif %}
-                      </a>
-                  </div>
+      <a href="{{ store.url }}" class="aser-logo" data-testid="store-header-logo" aria-label="{{ store.name }}">
+        {% if store.logo %}
+          <img src="{{ store.logo|cdn(220) }}" alt="{{ store.name }}" fetchpriority="high">
+        {% else %}
+          <span class="aser-logo__word">{{ store.name }}</span>
+        {% endif %}
+        {% if is_page('index') %}
+          <h1 class="sr-only">{{ store.name }}</h1>
+        {% else %}
+          <h2 class="sr-only">{{ store.name }}</h2>
+        {% endif %}
+      </a>
+    </div>
 
-                  {# Center: Main Menu Links #}
-                  <div class="hidden lg:flex items-center justify-center flex-1 mx-6">
-                    <custom-main-menu></custom-main-menu>
-                  </div>
+    {# ===== الوسط: القائمة الرئيسية ===== #}
+    <div class="aser-header__side aser-header__center">
+      <custom-main-menu></custom-main-menu>
+    </div>
 
-                  {# Left Side: Cart & Account Actions #}
-                  <div class="flex items-center gap-3">
-                      <div class="header-action-btn">
-                        <salla-user-menu data-testid="store-header-user-menu" avatar-only show-header show-trigger></salla-user-menu>
-                      </div>
-                      
-                      <div class="header-cart-wrapper">
-                        <salla-cart-summary data-testid="store-header-cart">
-                          <i slot="icon" class="header-btn__icon icon sicon-shopping-bag"></i>
-                        </salla-cart-summary>
-                      </div>
-                  </div>
+    {# ===== يسار (RTL): الأيقونات ===== #}
+    <div class="aser-header__side aser-header__end">
+      <button type="button" class="aser-ico" aria-label="بحث" onclick="salla.event.dispatch('search::open')">
+        <i class="sicon-search"></i>
+      </button>
 
-              </div>
-          </div>
+      {% if show_localization %}
+        <salla-localization-modal data-testid="store-header-localization" show-trigger></salla-localization-modal>
+      {% endif %}
+
+      {% if show_dark_toggle %}
+        <button type="button" class="aser-ico dark-mode-toggle" data-dark-mode-toggle aria-label="{{ trans('common.titles.toggle_dark_mode') }}">
+          <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      {% endif %}
+
+      <span class="aser-sep" aria-hidden="true"></span>
+
+      <div class="aser-ico">
+        <salla-user-menu data-testid="store-header-user-menu" avatar-only show-header show-trigger></salla-user-menu>
       </div>
+
+      <div class="aser-ico">
+        <salla-cart-summary data-testid="store-header-cart">
+          <i slot="icon" class="sicon-shopping-bag"></i>
+        </salla-cart-summary>
+      </div>
+    </div>
+
   </div>
 </header>
 
+<script>
+(function () {
+  var header = document.getElementById('aserHeader');
+  if (!header) return;
+
+  /* --- شريط الإعلان: إخفاء قبل الرسم لو المستخدم أغلقه قبل كده --- */
+  var bar = document.getElementById('aserTopbar');
+  if (bar) {
+    try {
+      if (localStorage.getItem('aser-topbar-off') === bar.dataset.msg) {
+        bar.style.transition = 'none';
+        bar.classList.add('is-out');
+        requestAnimationFrame(function () { bar.style.transition = ''; });
+      }
+    } catch (e) {}
+
+    var x = document.getElementById('aserTopbarX');
+    if (x) x.addEventListener('click', function () {
+      bar.classList.add('is-out');
+      try { localStorage.setItem('aser-topbar-off', bar.dataset.msg || '1'); } catch (e) {}
+    });
+  }
+
+  /* --- التمرير: تصغير + ظل، وإخفاء عند النزول/إظهار عند الصعود --- */
+  var last = window.scrollY, ticking = false;
+
+  function onScroll() {
+    var y = window.scrollY;
+
+    header.classList.toggle('is-stuck', y > 20);
+
+    if (y <= 120) {
+      header.classList.remove('is-hidden');
+    } else if (y > last + 4) {
+      /* لا نخفي الهيدر أثناء فتح قائمة الموبايل */
+      if (!document.body.classList.contains('menu-opened')) header.classList.add('is-hidden');
+    } else if (y < last - 4) {
+      header.classList.remove('is-hidden');
+    }
+
+    last = y;
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(onScroll);
+  }, { passive: true });
+
+  onScroll();
+
+  /* --- نبضة خفيفة للسلة عند إضافة منتج --- */
+  function bindCartPulse() {
+    if (!window.salla || !salla.cart || !salla.cart.event) return;
+    salla.cart.event.onItemAdded(function () {
+      var c = header.querySelector('salla-cart-summary');
+      if (!c) return;
+      c.animate(
+        [{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(.96)' }, { transform: 'scale(1)' }],
+        { duration: 460, easing: 'cubic-bezier(.4,0,.2,1)' }
+      );
+    });
+  }
+  if (window.salla && salla.onReady) { salla.onReady(bindCartPulse); }
+  else { document.addEventListener('salla::ready', bindCartPulse); }
+})();
+</script>
