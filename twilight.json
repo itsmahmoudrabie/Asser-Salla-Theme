@@ -266,6 +266,271 @@
             "value": ""
         },
         {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "عرض كامل للهيدر",
+            "description": "عند التعطيل يتحول الهيدر والشريط العلوي لعرض محدود (Boxed) بدل امتداد الشاشة بالكامل",
+            "id": "hd_full_width",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "إخفاء الهيدر عند النزول",
+            "description": "يختفي الهيدر أثناء التمرير لأسفل ويظهر فورًا عند التمرير لأعلى. عند التعطيل يبقى الهيدر ظاهرًا دائمًا بعد التثبيت",
+            "id": "hd_hide_on_scroll",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "هيدر شفاف فوق البانر (الرئيسية فقط)",
+            "description": "يبدأ الهيدر شفافًا فوق سلايدر الصفحة الرئيسية ويتحول لخلفية صلبة تلقائيًا بعد 40px من التمرير",
+            "id": "hd_transparent",
+            "format": "switch",
+            "required": false,
+            "value": false,
+            "selected": false
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "لون روابط القائمة الرئيسية",
+            "description": "قد يختلف عن لون نص الهيدر العام",
+            "id": "hd_menu_text",
+            "format": "color",
+            "required": false,
+            "value": "#2f3336"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "لون تفاعل روابط القائمة",
+            "description": null,
+            "id": "hd_menu_hover",
+            "format": "color",
+            "required": false,
+            "value": "#80270f"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "لون عنوان القائمة الفرعية",
+            "description": "لون العنصر الأب داخل القائمة المنسدلة",
+            "id": "hd_drop_title",
+            "format": "color",
+            "required": false,
+            "value": "#2f3336"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "لون شارة العدّاد (السلة/المفضلة)",
+            "description": null,
+            "id": "hd_badge",
+            "format": "color",
+            "required": false,
+            "value": "#80270f"
+        },
+        {
+            "id": "hd_menu_font",
+            "type": "items",
+            "format": "dropdown-list",
+            "label": "خط القائمة الرئيسية",
+            "description": null,
+            "labelHTML": null,
+            "icon": "sicon-list",
+            "selected": [
+                {"label": "خط النصوص (Body)", "value": "body", "key": "b1c2d3e4-1111-4a1a-9a1a-0000000000a1"}
+            ],
+            "options": [
+                {"label": "خط النصوص (Body)", "value": "body", "key": "b1c2d3e4-1111-4a1a-9a1a-0000000000a1"},
+                {"label": "خط العناوين (Heading)", "value": "heading", "key": "b1c2d3e4-1111-4a1a-9a1a-0000000000a2"}
+            ],
+            "source": "Manual",
+            "required": true
+        },
+        {
+            "id": "hd_menu_weight",
+            "type": "items",
+            "format": "dropdown-list",
+            "label": "سُمك خط القائمة",
+            "description": null,
+            "labelHTML": null,
+            "icon": "sicon-list",
+            "selected": [
+                {"label": "شبه غامق (600)", "value": "600", "key": "b1c2d3e4-2222-4a1a-9a1a-0000000000b1"}
+            ],
+            "options": [
+                {"label": "فاتح (300)", "value": "300", "key": "b1c2d3e4-2222-4a1a-9a1a-0000000000b2"},
+                {"label": "عادي (400)", "value": "400", "key": "b1c2d3e4-2222-4a1a-9a1a-0000000000b3"},
+                {"label": "متوسط (500)", "value": "500", "key": "b1c2d3e4-2222-4a1a-9a1a-0000000000b4"},
+                {"label": "شبه غامق (600)", "value": "600", "key": "b1c2d3e4-2222-4a1a-9a1a-0000000000b1"},
+                {"label": "غامق (700)", "value": "700", "key": "b1c2d3e4-2222-4a1a-9a1a-0000000000b5"}
+            ],
+            "source": "Manual",
+            "required": true
+        },
+        {
+            "type": "string",
+            "icon": "sicon-edit",
+            "label": "تباعد أحرف القائمة (em) — لاتيني فقط",
+            "description": "مثال: 0.2 — لا يُطبَّق على النص العربي عمدًا لأنه يكسر اتصال الحروف",
+            "id": "hd_menu_spacing",
+            "format": "text",
+            "required": false,
+            "value": "0.2"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-edit",
+            "label": "المسافة بين روابط القائمة (بالبكسل)",
+            "description": "مثال: 17",
+            "id": "hd_menu_gap",
+            "format": "text",
+            "required": false,
+            "value": "17"
+        },
+        {
+            "id": "hd_menu_case",
+            "type": "items",
+            "format": "dropdown-list",
+            "label": "حالة أحرف القائمة (لاتيني)",
+            "description": "بلا تأثير على النص العربي لعدم وجود حالة أحرف فيه",
+            "labelHTML": null,
+            "icon": "sicon-list",
+            "selected": [
+                {"label": "أحرف كبيرة (UPPERCASE)", "value": "uppercase", "key": "b1c2d3e4-3333-4a1a-9a1a-0000000000c1"}
+            ],
+            "options": [
+                {"label": "أحرف كبيرة (UPPERCASE)", "value": "uppercase", "key": "b1c2d3e4-3333-4a1a-9a1a-0000000000c1"},
+                {"label": "أحرف صغيرة (lowercase)", "value": "lowercase", "key": "b1c2d3e4-3333-4a1a-9a1a-0000000000c2"},
+                {"label": "أول حرف كبير (Capitalize)", "value": "capitalize", "key": "b1c2d3e4-3333-4a1a-9a1a-0000000000c3"},
+                {"label": "بدون تحويل", "value": "none", "key": "b1c2d3e4-3333-4a1a-9a1a-0000000000c4"}
+            ],
+            "source": "Manual",
+            "required": true
+        },
+        {
+            "id": "hd_menu_indicator",
+            "type": "items",
+            "format": "dropdown-list",
+            "label": "سُمك مؤشر الرابط النشط",
+            "description": null,
+            "labelHTML": null,
+            "icon": "sicon-list",
+            "selected": [
+                {"label": "رفيع (Thin Line)", "value": "thin", "key": "b1c2d3e4-4444-4a1a-9a1a-0000000000d1"}
+            ],
+            "options": [
+                {"label": "رفيع (Thin Line)", "value": "thin", "key": "b1c2d3e4-4444-4a1a-9a1a-0000000000d1"},
+                {"label": "سميك (Thick Line)", "value": "thick", "key": "b1c2d3e4-4444-4a1a-9a1a-0000000000d2"}
+            ],
+            "source": "Manual",
+            "required": true
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "خلفية الشريط العلوي",
+            "description": "قد تختلف عن خلفية الهيدر نفسه",
+            "id": "hd_topbar_bg",
+            "format": "color",
+            "required": false,
+            "value": "#f9f7f2"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-brush",
+            "label": "لون نص الشريط العلوي",
+            "description": null,
+            "id": "hd_topbar_text_color",
+            "format": "color",
+            "required": false,
+            "value": "#2f3336"
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "إظهار أيقونات التواصل الاجتماعي بالشريط العلوي",
+            "description": null,
+            "id": "hd_topbar_social",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "إظهار بيانات التواصل بالشريط العلوي",
+            "description": "الهاتف/البريد كما هي مُدخَلة في بيانات المتجر بلوحة تحكم سلة",
+            "id": "hd_topbar_contacts",
+            "format": "switch",
+            "required": false,
+            "value": false,
+            "selected": false
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "إظهار رابط الحساب بالشريط العلوي",
+            "description": null,
+            "id": "hd_topbar_account",
+            "format": "switch",
+            "required": false,
+            "value": false,
+            "selected": false
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "إظهار العملة/اللغة بالشريط العلوي",
+            "description": "افتراضيًا تظهر تلقائيًا فقط لو المتجر متعدد العملات أو اللغات",
+            "id": "hd_topbar_localization",
+            "format": "switch",
+            "required": false,
+            "value": true,
+            "selected": true
+        },
+        {
+            "type": "boolean",
+            "icon": "sicon-toggle-off",
+            "label": "تفعيل عدّاد تنازلي بالشريط العلوي",
+            "description": "يحتاج تاريخ انتهاء صالح في الحقل التالي وإلا لن يظهر",
+            "id": "hd_topbar_countdown_enable",
+            "format": "switch",
+            "required": false,
+            "value": false,
+            "selected": false
+        },
+        {
+            "type": "string",
+            "icon": "sicon-edit",
+            "label": "نص العدّاد التنازلي",
+            "description": null,
+            "id": "hd_topbar_countdown_text",
+            "format": "text",
+            "required": false,
+            "value": "ينتهي خلال"
+        },
+        {
+            "type": "string",
+            "icon": "sicon-edit",
+            "label": "تاريخ ووقت انتهاء العدّاد",
+            "description": "بصيغة: 2025-12-31T23:59:59 (سنة-شهر-يوم T ساعة:دقيقة:ثانية)",
+            "id": "hd_topbar_countdown_date",
+            "format": "text",
+            "required": false,
+            "value": ""
+        },
+        {
             "type": "static",
             "id": "static-line3",
             "format": "line"

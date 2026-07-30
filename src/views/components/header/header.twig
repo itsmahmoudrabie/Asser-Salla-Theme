@@ -37,8 +37,22 @@
      @salla.sa/twilight-tailwind-theme)، فأي ملف جديد لن يُولَّد وأي استدعاء
      asset لملف مفقود يُسقط الصفحة. لا ملفات جديدة ولا تعديل في master.twig.
 
-  التكيّف العربي الوحيد: uppercase و letter-spacing‏ 0.2em مطبَّقان على
-  اللاتيني فقط — التباعد يفصل الحروف العربية المتصلة ويكسر شكل الكلمة.
+  التكيّف العربي الوحيد: letter-spacing مطبَّق على اللاتيني فقط — يفصل
+  الحروف العربية المتصلة ويكسر شكل الكلمة. uppercase/lowercase/capitalize
+  بلا تأثير على العربي أصلًا (لا حالة أحرف فيه) فمُطبَّقة دائمًا بأمان.
+
+  3) كل إعدادات الشيبيفاي القابلة للنقل فعليًا صارت متاحة من لوحة سلة
+     (twilight.json، قسم "هيدر Art Edges"): الألوان، عرض اللوجو، عرض
+     كامل/محدود، إخفاء عند النزول تشغيل/إيقاف، هيدر شفاف فوق البانر
+     بالرئيسية، خط/وزن/تباعد/حالة أحرف/مؤشر القائمة، شريط علوي بخلفية
+     ونص منفصلين + سوشيال + بيانات تواصل + رابط حساب + عدّاد تنازلي.
+
+     استبعدتُ عن قصد إعدادات مرتبطة إما بمعمارية DOM مختلفة تمامًا
+     (layout_header بثمانية تخطيطات شعار/قائمة مختلفة) أو بداخليات
+     مكوّنات سلة الأصلية غير القابلة للتحكم من هنا (شكل نافذة البحث،
+     صورة/اسم الدولة داخل salla-localization-modal، رابط/بوب-أب تسجيل
+     الدخول داخل salla-user-menu) أو بمكتبة أيقونات زخرفية بحتة
+     (7 أشكال أيقونة سلة مختلفة). كل دي محتاجة نقاش منفصل لو مطلوبة.
 #}
 {% set c_bg        = theme.settings.get('hd_bg', '#f9f7f2') %}
 {% set c_text      = theme.settings.get('hd_text', '#2f3336') %}
@@ -46,14 +60,43 @@
 {% set c_drop_bg   = theme.settings.get('hd_drop_bg', '#ffffff') %}
 {% set c_drop_bd   = theme.settings.get('hd_drop_border', '#f1f1f1') %}
 {% set c_drop_txt  = theme.settings.get('hd_drop_text', '#6c747b') %}
+{% set c_drop_title = theme.settings.get('hd_drop_title', c_text) %}
+{% set c_badge     = theme.settings.get('hd_badge', c_hover) %}
+{% set c_menu_text  = theme.settings.get('hd_menu_text', c_text) %}
+{% set c_menu_hover = theme.settings.get('hd_menu_hover', c_hover) %}
 {% set logo_w      = theme.settings.get('hd_logo_width', 150) %}
+
+{# تخطيط وسلوك — كل واحد فيها منفصل تمامًا عن الآخر، ولا يلمس أي ملف غير هذا #}
+{% set full_width      = theme.settings.get('hd_full_width', true) %}
+{% set hide_on_scroll  = theme.settings.get('hd_hide_on_scroll', true) %}
+{% set transparent_raw = theme.settings.get('hd_transparent', false) %}
+{% set is_transparent  = transparent_raw and is_page('index') %}
+
+{# طباعة القائمة الرئيسية #}
+{% set menu_font      = theme.settings.get('hd_menu_font', 'body') %}
+{% set menu_weight    = theme.settings.get('hd_menu_weight', '600') %}
+{% set menu_spacing   = theme.settings.get('hd_menu_spacing', '0.2') %}
+{% set menu_gap       = theme.settings.get('hd_menu_gap', '17') %}
+{% set menu_case      = theme.settings.get('hd_menu_case', 'uppercase') %}
+{% set menu_indicator = theme.settings.get('hd_menu_indicator', 'thin') == 'thick' ? '3' : '1' %}
 
 {% set tb_text     = theme.settings.get('hd_topbar_text', 'خصم يصل إلى ٣٥٪ + شحن مجاني') %}
 {% set tb_cta      = theme.settings.get('hd_topbar_cta', 'تسوق الآن') %}
 {% set tb_cta_url  = theme.settings.get('hd_topbar_cta_url', '') %}
+{% set tb_bg       = theme.settings.get('hd_topbar_bg', c_bg) %}
+{% set tb_text_color = theme.settings.get('hd_topbar_text_color', c_text) %}
 
 {% set show_dark_toggle  = theme.settings.get('enable_dark_mode_toggle', true) %}
 {% set show_localization = store.settings.is_multilingual or store.settings.currencies_enabled %}
+
+{# إضافات الشريط العلوي — كلها اختيارية ومعطّلة افتراضيًا فيما عدا السوشيال (نفس السلوك الحالي) #}
+{% set show_tb_social       = theme.settings.get('hd_topbar_social', true) %}
+{% set show_tb_contacts     = theme.settings.get('hd_topbar_contacts', false) %}
+{% set show_tb_account      = theme.settings.get('hd_topbar_account', false) %}
+{% set show_tb_localization = theme.settings.get('hd_topbar_localization', show_localization) %}
+{% set tb_countdown_on   = theme.settings.get('hd_topbar_countdown_enable', false) %}
+{% set tb_countdown_text = theme.settings.get('hd_topbar_countdown_text', 'ينتهي خلال') %}
+{% set tb_countdown_date = theme.settings.get('hd_topbar_countdown_date', '') %}
 
 <style>
   .ae-tb, .ae-hd {
@@ -63,7 +106,13 @@
     --ae-drop-bg: {{ c_drop_bg }};
     --ae-drop-bd: {{ c_drop_bd }};
     --ae-drop-tx: {{ c_drop_txt }};
+    --ae-drop-title: {{ c_drop_title }};
+    --ae-badge:   {{ c_badge }};
+    --ae-menu-text:  {{ c_menu_text }};
+    --ae-menu-hover: {{ c_menu_hover }};
     --ae-logo-w:  {{ logo_w }}px;
+    --ae-menu-gap: {{ menu_gap }}px;
+    --ae-indicator-h: {{ menu_indicator }}px;
 
     --ae-h: 58px;                 /* height_header = small */
     --ae-h-sm: 52px;
@@ -72,6 +121,7 @@
     --ae-line: rgba(47, 51, 54, .10);
     --ae-soft: rgba(47, 51, 54, .05);
   }
+  .ae-tb { --ae-bg: {{ tb_bg }}; --ae-text: {{ tb_text_color }}; }
   @media (min-width: 768px)  { .ae-tb, .ae-hd { --ae-h: 70px; --ae-h-sm: 60px; --ae-pad: 26px; } }
   @media (min-width: 1280px) { .ae-tb, .ae-hd { --ae-h: 76px; --ae-h-sm: 62px; --ae-pad: 40px; } }
 
@@ -83,6 +133,10 @@
     --ae-drop-bg: #1c2024;
     --ae-drop-bd: rgba(236, 232, 225, .12);
     --ae-drop-tx: #a9b0b6;
+    --ae-drop-title: #ece8e1;
+    --ae-badge: #c1663f;
+    --ae-menu-text: #ece8e1;
+    --ae-menu-hover: #c1663f;
     --ae-line: rgba(236, 232, 225, .12);
     --ae-soft: rgba(236, 232, 225, .06);
   }
@@ -102,6 +156,16 @@
     font-family: var(--font-body, sans-serif);
     font-size: 13px;                        /* font_size_topbar */
   }
+  /* setwidth = container (Box) بدل العرض الكامل الافتراضي */
+  .ae-tb--boxed .ae-tb__in, .ae-hd--boxed .ae-hd__row { max-width: 1400px; margin-inline: auto; }
+  .ae-tb__countdown {
+    display: inline-flex; align-items: center; gap: 6px;
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .ae-tb__countdown b { font-weight: 700; }
+  .ae-tb__contacts { display: inline-flex; align-items: center; }
+  .ae-tb__account { display: inline-flex; align-items: center; font-size: 13px; }
+  .ae-tb__account salla-user-menu { font-size: 13px; }
   .ae-tb__social, .ae-tb__loc { flex: 1 1 0; display: flex; align-items: center; min-width: 0; }
   .ae-tb__loc { justify-content: flex-end; gap: 8px; }
   .ae-tb__mid {
@@ -142,6 +206,12 @@
   }
   .ae-hd.is-stuck  { box-shadow: 0 1px 0 rgba(0,0,0,.05), 0 8px 30px -18px rgba(47,51,54,.4); }
   .ae-hd.is-hidden { transform: translateY(-101%); }
+
+  /* enable_transparent — الرئيسية فقط، وتُلغى تلقائيًا بمجرد التمرير 40px (IntersectionObserver) */
+  .ae-hd--transparent:not(.is-solid) {
+    background: transparent; border-color: transparent; box-shadow: none; color: #fff;
+  }
+  .ae-sentinel { display: block; block-size: 1px; margin-block-end: -1px; }
 
   .ae-hd__row {
     display: flex; align-items: center;
@@ -207,7 +277,7 @@
   .ae-hd__ico .ae-count {
     position: absolute; top: 3px; inset-inline-end: 3px;
     min-width: 15px; height: 15px; padding-inline: 3px; border-radius: 999px;
-    background: var(--ae-hover); color: #fff;
+    background: var(--ae-badge); color: #fff;
     font-size: 9.5px; font-weight: 700; line-height: 15px; text-align: center;
   }
   .ae-hd__rule { width: 1px; height: 18px; margin-inline: 8px; background: var(--ae-line); flex: none; }
@@ -217,7 +287,7 @@
     display: inline-flex; align-items: center; justify-content: center; min-width: 0; min-height: 0;
   }
   .ae-hd .s-cart-summary-count {
-    background: var(--ae-hover); color: #fff; font-size: 9.5px; font-weight: 700;
+    background: var(--ae-badge); color: #fff; font-size: 9.5px; font-weight: 700;
   }
   .ae-hd salla-localization-modal { font-size: 13px; }
   .ae-hd .dark-mode-toggle__icon { width: 18px; height: 18px; }
@@ -229,27 +299,28 @@
   .ae-hd__nav .main-menu > li.root-level > a {
     position: relative;
     padding: 10px 0 !important;
-    margin-inline: clamp(9px, 1.1vw, 17px);
-    font-family: var(--font-body, sans-serif);
-    font-size: 13px;                 /* font_sizemenu */
-    font-weight: 600;                /* font_weight   */
-    color: var(--ae-text);           /* menutext      */
+    margin-inline: clamp(9px, 1.1vw, var(--ae-menu-gap));   /* menu_space */
+    font-family: var(--font-{{ menu_font }}, sans-serif);   /* font_family_menu */
+    font-size: 13px;                                        /* font_sizemenu */
+    font-weight: {{ menu_weight }};                          /* font_weight   */
+    color: var(--ae-menu-text);                              /* menutext      */
     white-space: nowrap;
     transition: color .3s var(--ae-e);
   }
-  /* uppercase + letter-spacing لِلاتيني فقط — يكسران اتصال الحروف العربية */
+  /* type_menu — uppercase/lowercase/capitalize لا تؤثر على العربي أصلًا (لا حالة أحرف) فتُطبَّق دائمًا بأمان */
+  .ae-hd__nav .main-menu > li.root-level > a { text-transform: {{ menu_case }}; }
+  /* letter-spacing لِلاتيني فقط — يفصل الحروف العربية المتصلة ويكسر شكلها */
   html:not([lang^="ar"]) .ae-hd__nav .main-menu > li.root-level > a {
-    text-transform: uppercase;       /* type_menu    */
-    letter-spacing: .2em;            /* menu_spacing */
+    letter-spacing: {{ menu_spacing }}em;                    /* menu_spacing */
   }
-  /* menu_active = thin-line */
+  /* menu_active: thin-line / thick-line */
   .ae-hd__nav .main-menu > li.root-level > a::before {
     content: ""; position: absolute; bottom: 2px; left: 0;
-    width: 0; height: 1px; background: currentColor;
+    width: 0; height: var(--ae-indicator-h); background: currentColor;
     transition: width .32s var(--ae-e);
   }
   .ae-hd__nav .main-menu > li.root-level:hover > a,
-  .ae-hd__nav .main-menu > li.root-level.site-nav--active > a { color: var(--ae-hover); }
+  .ae-hd__nav .main-menu > li.root-level.site-nav--active > a { color: var(--ae-menu-hover); }
   .ae-hd__nav .main-menu > li.root-level:hover > a::before,
   .ae-hd__nav .main-menu > li.root-level.site-nav--active > a::before { width: 100%; }
 
@@ -270,7 +341,7 @@
     color: var(--ae-hover) !important;
     background: var(--ae-soft) !important;
   }
-  .ae-hd__nav .main-menu .sub-menu .has-children > a { color: var(--ae-text); font-weight: 600; }
+  .ae-hd__nav .main-menu .sub-menu .has-children > a { color: var(--ae-drop-title); font-weight: 600; }
 
   /* شارات القائمة (new / hot / sale) */
   .ae-hd__nav .menu-label { border-radius: 16px; padding: 3px 7px; font-size: 9px; line-height: 1; color: #fff; }
@@ -407,11 +478,18 @@
 <a href="#main-content" class="ae-skip">تخطي إلى المحتوى</a>
 
 {# ===================== TOP BAR ===================== #}
-{% if tb_text or tb_cta %}
-  <div class="ae-tb" id="aeTb" data-msg="{{ tb_text }}">
+{% if tb_text or tb_cta or tb_countdown_on %}
+  <div class="ae-tb{{ full_width ? '' : ' ae-tb--boxed' }}" id="aeTb" data-msg="{{ tb_text }}">
     <div class="ae-tb__in">
       <div class="ae-tb__social">
-        <salla-social data-testid="store-header-social"></salla-social>
+        {% if show_tb_social %}
+          <salla-social data-testid="store-header-social"></salla-social>
+        {% endif %}
+        {% if show_tb_contacts %}
+          <span class="ae-tb__contacts">
+            <salla-contacts data-testid="store-header-contacts" is-header></salla-contacts>
+          </span>
+        {% endif %}
       </div>
 
       <div class="ae-tb__mid">
@@ -419,10 +497,20 @@
         {% if tb_cta %}
           <a class="ae-tb__cta" href="{{ tb_cta_url ? tb_cta_url : store.url }}">{{ tb_cta }}</a>
         {% endif %}
+        {% if tb_countdown_on and tb_countdown_date %}
+          <span class="ae-tb__countdown" id="aeCountdown" data-until="{{ tb_countdown_date }}">
+            <span>{{ tb_countdown_text }}</span> <b id="aeCountdownVal">—</b>
+          </span>
+        {% endif %}
       </div>
 
       <div class="ae-tb__loc">
-        {% if show_localization %}
+        {% if show_tb_account %}
+          <span class="ae-tb__account">
+            <salla-user-menu data-testid="store-topbar-user-menu" show-header show-trigger></salla-user-menu>
+          </span>
+        {% endif %}
+        {% if show_tb_localization %}
           <salla-localization-modal data-testid="store-topbar-localization" show-trigger></salla-localization-modal>
         {% endif %}
         <button type="button" class="ae-tb__x" id="aeTbX" aria-label="إغلاق الشريط">
@@ -433,8 +521,16 @@
   </div>
 {% endif %}
 
+{% if is_transparent %}
+  {# سنتينل لمراقبة تمرير 40px عن طريق IntersectionObserver — يحوّل الهيدر من شفاف إلى صلب #}
+  <span class="ae-sentinel" id="aeSentinel" aria-hidden="true"></span>
+{% endif %}
+
 {# ===================== HEADER ===================== #}
-<header data-testid="store-header" class="ae-hd store-header font-primary" id="aeHd">
+<header data-testid="store-header"
+        class="ae-hd store-header font-primary{{ is_transparent ? ' ae-hd--transparent' : '' }}{{ full_width ? '' : ' ae-hd--boxed' }}"
+        id="aeHd"
+        data-hide-scroll="{{ hide_on_scroll ? '1' : '0' }}">
   <div class="ae-hd__row">
 
     {# البداية: همبرغر + بحث (موبايل) ثم اللوجو (ديسكتوب) #}
@@ -551,12 +647,14 @@
     });
   }
 
-  /* sticky: ظل + تصغير، إخفاء عند النزول وإظهار عند الصعود */
+  /* sticky: ظل + تصغير، إخفاء عند النزول وإظهار عند الصعود (hd_hide_on_scroll) */
+  var hideOnScroll = hd.dataset.hideScroll !== '0';
   var last = window.scrollY, ticking = false;
   function onScroll() {
     var y = window.scrollY;
     hd.classList.toggle('is-stuck', y > 16);
-    if (y <= 130) {
+    if (!hideOnScroll) { /* الميزة معطّلة: يبقى ظاهرًا دائمًا بعد التثبيت */ }
+    else if (y <= 130) {
       hd.classList.remove('is-hidden');
     } else if (y > last + 5) {
       if (!document.body.classList.contains('menu-opened')) hd.classList.add('is-hidden');
@@ -571,6 +669,36 @@
     requestAnimationFrame(onScroll);
   }, { passive: true });
   onScroll();
+
+  /* enable_transparent: تحويل الهيدر لخلفية صلبة بمجرد تمرير 40px، عبر IntersectionObserver
+     بدل قراءة موضع التمرير في كل إطار (أخف على الأداء) */
+  var sentinel = document.getElementById('aeSentinel');
+  if (sentinel && hd.classList.contains('ae-hd--transparent') && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      hd.classList.toggle('is-solid', !entries[0].isIntersecting);
+    }, { rootMargin: '-40px 0px 0px 0px', threshold: 0 }).observe(sentinel);
+  } else if (hd.classList.contains('ae-hd--transparent')) {
+    hd.classList.add('is-solid'); /* لا يوجد دعم لـ IntersectionObserver: صلب دائمًا كأمان */
+  }
+
+  /* enable_countdown: عدّاد تنازلي بسيط بالأيام/الساعات/الدقائق/الثواني */
+  var cd = document.getElementById('aeCountdown');
+  if (cd) {
+    var cdVal = document.getElementById('aeCountdownVal');
+    var target = new Date(cd.dataset.until).getTime();
+    function tickCountdown() {
+      var diff = target - Date.now();
+      if (isNaN(target) || diff <= 0) { cd.hidden = true; return; }
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor((diff % 86400000) / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var s = Math.floor((diff % 60000) / 1000);
+      var pad = function (n) { return String(n).padStart(2, '0'); };
+      cdVal.textContent = (d > 0 ? d + 'ي ' : '') + pad(h) + ':' + pad(m) + ':' + pad(s);
+    }
+    tickCountdown();
+    setInterval(tickCountdown, 1000);
+  }
 
   /* عدّاد المفضلة + نبضة السلة + درج السلة */
   function bindSalla() {
