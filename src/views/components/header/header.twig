@@ -27,7 +27,7 @@
       salla-search-form ، salla-lang-list ، salla-wishlist-button ، Alpine.js).
      استُبدلت بالمكوّنات المتحقَّق منها في هذا الثيم فعليًا — وهو ما يطلبه
      البند 7 من البريف نفسه (إعادة بناء بأدوات سلة الصحيحة لا نقل حرفي):
-       custom-main-menu · salla-search عبر salla.event.dispatch('search::open')
+       custom-main-menu · salla-search inline (منسحبة من الأيقونة، انظر .ae-search)
        salla-user-menu · salla-cart-summary · salla-localization-modal
        salla-social · قائمة الموبايل عبر a[href="#mobile-menu"] (mmenu)
        الوضع الداكن عبر [data-dark-mode-toggle]
@@ -294,6 +294,59 @@
   .ae-hd .dark-mode-toggle { transition: transform .4s var(--ae-e), color .3s, background-color .2s; }
   .ae-hd .dark-mode-toggle:hover { transform: rotate(-18deg); }
 
+  /* ===================== بحث الهيدر (ينسحب من مكان الأيقونة) ===================== */
+  .ae-search { position: relative; display: inline-flex; }
+
+  .ae-search__box {
+    position: absolute; top: 50%; right: 0;
+    transform: translateY(-50%);
+    display: flex; align-items: center; gap: 4px;
+    height: 42px; width: 0; padding-inline: 0;
+    border-radius: 999px; overflow: hidden;
+    background: var(--ae-drop-bg); border: 1px solid var(--ae-drop-bd);
+    box-shadow: 0 16px 40px -18px rgba(47, 51, 54, .4);
+    opacity: 0; pointer-events: none; z-index: 40;
+    transition: width .5s cubic-bezier(.34, 1.56, .64, 1),
+                padding-inline .5s cubic-bezier(.34, 1.56, .64, 1),
+                opacity .3s ease;
+  }
+  .ae-search__box.is-open {
+    width: min(320px, calc(100vw - 2 * var(--ae-pad) - 8px));
+    padding-inline: 14px;
+    opacity: 1; pointer-events: auto;
+  }
+
+  .ae-search__field { position: relative; flex: 1 1 auto; min-width: 0; height: 100%; }
+
+  /* نص الدعوة يُكتب حرفًا حرفًا قبل ما يتحول لمربع سلة الحقيقي */
+  .ae-search__type {
+    position: absolute; inset: 0;
+    display: flex; align-items: center;
+    font-size: 13.5px; color: var(--ae-drop-tx); white-space: nowrap; overflow: hidden;
+    pointer-events: none; transition: opacity .25s ease;
+  }
+  .ae-search__caret {
+    display: inline-block; width: 1px; height: 14px; margin-inline-start: 2px;
+    background: currentColor; animation: aeCaretBlink 1s steps(1, end) infinite;
+  }
+  @keyframes aeCaretBlink { 50% { opacity: 0; } }
+
+  .ae-search__engine {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    opacity: 0; pointer-events: none; transition: opacity .3s ease;
+  }
+  .ae-search__box.is-typed .ae-search__type   { opacity: 0; }
+  .ae-search__box.is-typed .ae-search__engine { opacity: 1; pointer-events: auto; }
+
+  .ae-search__close {
+    flex: none; display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 999px; color: var(--ae-drop-tx);
+    opacity: 0; transform: scale(.6);
+    transition: opacity .25s ease .1s, transform .25s ease .1s, background-color .2s, color .2s;
+  }
+  .ae-search__box.is-open .ae-search__close { opacity: 1; transform: scale(1); }
+  .ae-search__close:hover { background: var(--ae-soft); color: var(--ae-hover); }
+
   /* ===================== القائمة الرئيسية ===================== */
   .ae-hd__nav .main-menu { margin: 0; padding: 0; flex-wrap: nowrap; }
   .ae-hd__nav .main-menu > li.root-level > a {
@@ -539,9 +592,20 @@
         <a href="#mobile-menu" class="ae-hd__burger" data-testid="store-header-mobile-toggle" aria-label="القائمة">
           <i></i><i></i><i></i>
         </a>
-        <button type="button" class="ae-hd__ico" aria-label="بحث" onclick="salla.event.dispatch('search::open')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-        </button>
+        <div class="ae-search ae-search--m">
+          <button type="button" class="ae-hd__ico ae-search__toggle" aria-label="بحث" aria-expanded="false" aria-controls="aeSearchBoxM" data-search-toggle>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+          </button>
+          <div class="ae-search__box" id="aeSearchBoxM" data-search-box>
+            <div class="ae-search__field">
+              <span class="ae-search__type" aria-hidden="true"><span data-search-type-text></span><i class="ae-search__caret"></i></span>
+              <salla-search inline oval height="38" class="ae-search__engine" data-search-engine data-testid="store-header-search-m"></salla-search>
+            </div>
+            <button type="button" class="ae-search__close" data-search-close aria-label="إغلاق البحث">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
 
       <a href="{{ store.url }}" class="ae-hd__logo ae-hd__logo--desktop" data-testid="store-header-logo" aria-label="{{ store.name }}">
@@ -569,9 +633,20 @@
         <salla-localization-modal data-testid="store-header-localization" show-trigger></salla-localization-modal>
       {% endif %}
 
-      <button type="button" class="ae-hd__ico ae-hd__ico--dt" aria-label="بحث" onclick="salla.event.dispatch('search::open')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-      </button>
+      <div class="ae-search ae-search--dt">
+        <button type="button" class="ae-hd__ico ae-hd__ico--dt ae-search__toggle" aria-label="بحث" aria-expanded="false" aria-controls="aeSearchBoxDt" data-search-toggle>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+        </button>
+        <div class="ae-search__box" id="aeSearchBoxDt" data-search-box>
+          <div class="ae-search__field">
+            <span class="ae-search__type" aria-hidden="true"><span data-search-type-text></span><i class="ae-search__caret"></i></span>
+            <salla-search inline oval height="40" class="ae-search__engine" data-search-engine data-testid="store-header-search-dt"></salla-search>
+          </div>
+          <button type="button" class="ae-search__close" data-search-close aria-label="إغلاق البحث">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+      </div>
 
       {% if show_dark_toggle %}
         <button type="button" class="ae-hd__ico dark-mode-toggle" data-dark-mode-toggle aria-label="{{ trans('common.titles.toggle_dark_mode') }}">
@@ -861,5 +936,88 @@
       if (root.classList.contains('is-open')) refresh();
     });
   }
+
+  /* --------------------------------------------------------------
+     بحث الهيدر: الصندوق ينسحب من مكان أيقونة البحث نفسها ويعرض
+     أولًا نص دعوة يُكتب حرفًا حرفًا ("ابحث عما تريد")، ثم يتحول
+     تلقائيًا (أو فور أي ضغط داخله) لمكوّن salla-search الحقيقي
+     inline كي يبقى البحث حيًّا وبنتائج فعلية.
+  -------------------------------------------------------------- */
+  function bindSearchWidgets() {
+    var HINT = 'ابحث عما تريد';
+
+    document.querySelectorAll('.ae-search').forEach(function (root) {
+      var toggle = root.querySelector('[data-search-toggle]');
+      var box    = root.querySelector('[data-search-box]');
+      var close  = root.querySelector('[data-search-close]');
+      var typeEl = root.querySelector('[data-search-type-text]');
+      var engine = root.querySelector('[data-search-engine]');
+      if (!toggle || !box || !typeEl || !engine) return;
+
+      var typeTimer, revealTimer;
+
+      function typeHint() {
+        var i = 0;
+        typeEl.textContent = '';
+        typeTimer = setInterval(function () {
+          i++;
+          typeEl.textContent = HINT.slice(0, i);
+          if (i >= HINT.length) {
+            clearInterval(typeTimer);
+            revealTimer = setTimeout(reveal, 650);
+          }
+        }, 45);
+      }
+
+      function reveal() {
+        box.classList.add('is-typed');
+        revealTimer = setTimeout(function () {
+          try {
+            var input = engine.shadowRoot ? engine.shadowRoot.querySelector('input') : engine.querySelector('input');
+            (input || engine).focus();
+          } catch (e) {}
+        }, 320);
+      }
+
+      function open() {
+        box.classList.remove('is-typed');
+        box.classList.add('is-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        clearInterval(typeTimer);
+        clearTimeout(revealTimer);
+        typeHint();
+      }
+
+      function closeBox() {
+        box.classList.remove('is-open', 'is-typed');
+        toggle.setAttribute('aria-expanded', 'false');
+        clearInterval(typeTimer);
+        clearTimeout(revealTimer);
+      }
+
+      toggle.addEventListener('click', function () {
+        box.classList.contains('is-open') ? closeBox() : open();
+      });
+      if (close) close.addEventListener('click', closeBox);
+
+      /* ضغطة داخل الصندوق أثناء عرض نص الدعوة تتخطاه فورًا لمربع البحث الحقيقي */
+      box.addEventListener('click', function (e) {
+        if (close && close.contains(e.target)) return;
+        if (box.classList.contains('is-open') && !box.classList.contains('is-typed')) {
+          clearInterval(typeTimer);
+          clearTimeout(revealTimer);
+          reveal();
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (box.classList.contains('is-open') && !root.contains(e.target)) closeBox();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && box.classList.contains('is-open')) closeBox();
+      });
+    });
+  }
+  bindSearchWidgets();
 })();
 </script>
